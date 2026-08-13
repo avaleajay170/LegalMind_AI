@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalMind AI - Advocate Sign In</title>
+    <style>
+        :root {
+            --bg-app: #f6f8fb;
+            --bg-surface: #ffffff;
+            --bg-surface-muted: #eef3f9;
+            --bg-panel-dark: #0f172a;
+            --bg-panel-soft: #162447;
+            --bg-ai: #eef2ff;
+            --bg-ai-strong: #dbe5ff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --text-inverse: #f8fafc;
+            --border-subtle: #dbe4ee;
+            --border-strong: #cbd5e1;
+            --brand-primary: #162447;
+            --brand-primary-hover: #1f315c;
+            --brand-secondary: #315b96;
+            --accent-ai: #4f46e5;
+            --success: #15803d;
+            --success-soft: #eaf8ee;
+            --warning: #b45309;
+            --warning-soft: #fff4e8;
+            --danger: #b91c1c;
+            --danger-soft: #fef0f0;
+            --info: #2563eb;
+            --shadow-sm: 0 10px 24px rgba(15, 23, 42, 0.06);
+            --shadow-md: 0 24px 46px rgba(15, 23, 42, 0.1);
+            --radius-card: 22px;
+            --radius-control: 14px;
+            --radius-pill: 999px;
+            --transition-fast: 180ms ease;
+            --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: var(--font-sans);
+            background:
+                radial-gradient(circle at top left, rgba(79, 70, 229, 0.06), transparent 28%),
+                linear-gradient(180deg, #f8fafc 0%, #f3f7fb 100%);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button,
+        input,
+        a {
+            font: inherit;
+        }
+
+        .page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+        }
+
+        .showcase {
+            position: relative;
+            overflow: hidden;
+            padding: 42px;
+            background: linear-gradient(160deg, #10192f 0%, #162447 48%, #1d315f 100%);
+            color: var(--text-inverse);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .showcase::before,
+        .showcase::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .showcase::before {
+            width: 380px;
+            height: 380px;
+            right: -120px;
+            top: -80px;
+            background: radial-gradient(circle, rgba(219, 229, 255, 0.16), transparent 70%);
+        }
+
+        .showcase::after {
+            width: 300px;
+            height: 300px;
+            left: -90px;
+            bottom: -120px;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.16), transparent 70%);
+        }
+
+        .brand {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            width: fit-content;
+        }
+
+        .brand-mark {
+            width: 46px;
+            height: 46px;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #eff4ff 0%, #cad8ff 100%);
+            color: var(--brand-primary);
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .brand-copy strong {
+            display: block;
+            font-size: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-copy span {
+            display: block;
+            margin-top: 4px;
+            color: rgba(226, 232, 240, 0.76);
+            font-size: 0.85rem;
+        }
+
+        .showcase-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: 28px;
+            max-width: 580px;
+            margin: 36px 0;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: fit-content;
+            padding: 8px 12px;
+            border-radius: var(--radius-pill);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .showcase h1 {
+            margin: 0;
+            font-size: clamp(2.35rem, 4vw, 3.4rem);
+            line-height: 1.08;
+            letter-spacing: -0.05em;
+        }
+
+        .showcase p {
+            margin: 0;
+            color: rgba(226, 232, 240, 0.82);
+            font-size: 1rem;
+            line-height: 1.72;
+            max-width: 56ch;
+        }
+
+        .highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .highlight-card {
+            padding: 18px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+        }
+
+        .highlight-card span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 14px;
+            font-size: 1rem;
+        }
+
+        .highlight-card strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .highlight-card p {
+            font-size: 0.9rem;
+            line-height: 1.58;
+        }
+
+        .showcase-footer {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(226, 232, 240, 0.12);
+            color: rgba(226, 232, 240, 0.78);
+            font-size: 0.88rem;
+        }
+
+        .trusted-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: var(--radius-pill);
+            background: rgba(21, 128, 61, 0.18);
+            color: #d8fbe2;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .auth-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 32px;
+        }
+
+        .auth-wrap {
+            width: min(100%, 460px);
+            display: grid;
+            gap: 24px;
+        }
+
+        .auth-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 28px;
+            box-shadow: var(--shadow-md);
+            padding: 32px;
+        }
+
+        .auth-header {
+            display: grid;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .auth-header .mini-brand {
+            display: none;
+        }
+
+        .auth-header h2 {
+            margin: 0;
+            font-size: clamp(1.85rem, 3vw, 2.25rem);
+            line-height: 1.1;
+            letter-spacing: -0.04em;
+        }
+
+        .auth-header p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.65;
+        }
+
+        .pill-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            background: var(--bg-surface-muted);
+        }
+
+        .pill.ai {
+            color: var(--accent-ai);
+            border-color: #dbe1ff;
+            background: var(--bg-ai);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .field-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .field label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .field a {
+            color: var(--brand-secondary);
+            text-decoration: none;
+            font-size: 0.83rem;
+            font-weight: 600;
+        }
+
+        .field a:hover {
+            text-decoration: underline;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap span {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            height: 50px;
+            border-radius: var(--radius-control);
+            border: 1px solid var(--border-subtle);
+            background: #fcfdff;
+            padding: 0 16px 0 44px;
+            color: var(--text-primary);
+            outline: 0;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+        }
+
+        .input-wrap input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .input-wrap input:focus {
+            border-color: rgba(49, 91, 150, 0.45);
+            box-shadow: 0 0 0 4px rgba(49, 91, 150, 0.1);
+            background: #ffffff;
+        }
+
+        .meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .check {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+        }
+
+        .check input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--brand-primary);
+        }
+
+        .btn {
+            height: 50px;
+            border: 1px solid transparent;
+            border-radius: var(--radius-control);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--brand-primary);
+            color: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-primary-hover);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            border-color: var(--border-subtle);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--border-strong);
+            background: #fbfdff;
+        }
+
+        .divider {
+            position: relative;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            margin: 22px 0;
+        }
+
+        .divider::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            border-top: 1px solid var(--border-subtle);
+            z-index: 0;
+        }
+
+        .divider span {
+            position: relative;
+            z-index: 1;
+            padding: 0 12px;
+            background: var(--bg-surface);
+        }
+
+        .notice {
+            margin-top: 22px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: var(--bg-ai);
+            border: 1px solid #dbe1ff;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .notice strong {
+            color: var(--accent-ai);
+        }
+
+        .auth-footer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .auth-footer a {
+            color: var(--brand-secondary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1180px) {
+            .page {
+                grid-template-columns: 1fr;
+            }
+
+            .showcase {
+                min-height: auto;
+                padding: 28px 24px 30px;
+            }
+
+            .highlight-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .auth-panel {
+                padding: 28px 20px 36px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .showcase {
+                display: none;
+            }
+
+            .auth-panel {
+                min-height: 100vh;
+                padding: 18px 16px 28px;
+            }
+
+            .auth-card {
+                padding: 24px 18px;
+                border-radius: 22px;
+            }
+
+            .auth-header .mini-brand {
+                display: inline-flex;
+                align-items: center;
+                gap: 12px;
+                width: fit-content;
+                margin-bottom: 8px;
+            }
+
+            .auth-header .mini-brand .brand-mark {
+                width: 40px;
+                height: 40px;
+                border-radius: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .meta-row {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .pill-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <section class="showcase">
+            <div class="brand">
+                <div class="brand-mark">LM</div>
+                <div class="brand-copy">
+                    <strong>LegalMind AI</strong>
+                    <span>Intelligent legal workflow for Indian advocates</span>
+                </div>
+            </div>
+
+            <div class="showcase-content">
+                <div class="eyebrow">Secure advocate workspace</div>
+                <div>
+                    <h1>Your intelligent legal workflow copilot.</h1>
+                    <p>
+                        Manage matters, review deadlines, organize documents, and use embedded AI assistance
+                        inside a professional workspace built for verified legal practitioners.
+                    </p>
+                </div>
+
+                <div class="highlight-grid">
+                    <article class="highlight-card">
+                        <span>◫</span>
+                        <strong>Case Command Center</strong>
+                        <p>Track hearings, filings, case notes, and litigation risk in one connected workspace.</p>
+                    </article>
+                    <article class="highlight-card">
+                        <span>✦</span>
+                        <strong>Embedded AI Assistance</strong>
+                        <p>Research faster, summarize records, and draft legal responses with restrained AI support.</p>
+                    </article>
+                    <article class="highlight-card">
+                        <span>◷</span>
+                        <strong>Deadline Intelligence</strong>
+                        <p>Monitor urgent dates, filing windows, and priority actions before they become procedural risks.</p>
+                    </article>
+                    <article class="highlight-card">
+                        <span>✓</span>
+                        <strong>Advocate-Only Access</strong>
+                        <p>Designed for professional use with verification-focused onboarding and a trusted product tone.</p>
+                    </article>
+                </div>
+            </div>
+
+            <div class="showcase-footer">
+                <span>Trusted legal workflow platform · Pune · Mumbai · Delhi</span>
+                <span class="trusted-pill">✓ Verified Advocate Access</span>
+            </div>
+        </section>
+
+        <section class="auth-panel">
+            <div class="auth-wrap">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <div class="mini-brand">
+                            <div class="brand-mark">LM</div>
+                            <div class="brand-copy">
+                                <strong style="color: var(--text-primary);">LegalMind AI</strong>
+                                <span style="color: var(--text-secondary);">Advocate workspace</span>
+                            </div>
+                        </div>
+
+                        <div class="pill-row">
+                            <span class="pill">Secure Sign In</span>
+                            <span class="pill ai">AI Legal Workflow Platform</span>
+                        </div>
+
+                        <div>
+                            <h2>Sign in to continue your legal work.</h2>
+                            <p>
+                                Access your cases, deadlines, documents, and AI-assisted workflow tools inside a secure professional workspace.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form class="form-grid">
+                        <div class="field">
+                            <div class="field-header">
+                                <label for="email">Professional Email</label>
+                            </div>
+                            <div class="input-wrap">
+                                <span>@</span>
+                                <input id="email" type="email" placeholder="advocate@firm.in" autocomplete="email">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="field-header">
+                                <label for="password">Password</label>
+                                <a href="#">Forgot password?</a>
+                            </div>
+                            <div class="input-wrap">
+                                <span>•</span>
+                                <input id="password" type="password" placeholder="Enter your password" autocomplete="current-password">
+                            </div>
+                        </div>
+
+                        <div class="meta-row">
+                            <label class="check">
+                                <input type="checkbox">
+                                <span>Keep me signed in on this device</span>
+                            </label>
+                            <span style="color: var(--text-muted); font-size: 0.82rem;">256-bit encrypted session</span>
+                        </div>
+
+                        <button class="btn btn-primary" type="submit">Sign In to LegalMind AI</button>
+                    </form>
+
+                    <div class="divider"><span>or</span></div>
+
+                    <button class="btn btn-secondary" type="button">Continue with Advocate Verification</button>
+
+                    <div class="notice">
+                        <strong>Professional access only:</strong> LegalMind AI is intended for verified advocates and legal professionals.
+                        All AI-generated assistance should be independently reviewed before professional use.
+                    </div>
+                </div>
+
+                <div class="auth-footer">
+                    New to the platform?
+                    <a href="#">Create your advocate account</a>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalMind AI - Design Preview</title>
+    <style>
+        :root {
+            --bg-app: #f6f8fb;
+            --bg-surface: #ffffff;
+            --bg-surface-muted: #eef3f9;
+            --bg-sidebar: #0f172a;
+            --bg-sidebar-soft: #16213b;
+            --bg-ai: #eef2ff;
+            --bg-ai-strong: #dbe5ff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --text-inverse: #f8fafc;
+            --border-subtle: #dbe4ee;
+            --border-strong: #cbd5e1;
+            --brand-primary: #162447;
+            --brand-primary-hover: #1f315c;
+            --brand-secondary: #315b96;
+            --accent-ai: #4f46e5;
+            --success: #15803d;
+            --success-soft: #eaf8ee;
+            --warning: #b45309;
+            --warning-soft: #fff4e8;
+            --danger: #b91c1c;
+            --danger-soft: #fef0f0;
+            --info: #2563eb;
+            --info-soft: #eff6ff;
+            --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.06);
+            --shadow-md: 0 18px 36px rgba(15, 23, 42, 0.08);
+            --radius-card: 18px;
+            --radius-control: 12px;
+            --radius-pill: 999px;
+            --sidebar-width: 274px;
+            --transition-fast: 180ms ease;
+            --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-sans);
+            background: var(--bg-app);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        .app-shell {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #10192f 0%, #162447 100%);
+            color: var(--text-inverse);
+            padding: 28px 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 6px 10px 18px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.12);
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #eff4ff 0%, #cad8ff 100%);
+            color: var(--brand-primary);
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .brand-copy h1 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-copy p {
+            margin: 4px 0 0;
+            color: rgba(226, 232, 240, 0.72);
+            font-size: 0.8rem;
+        }
+
+        .nav-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-group-label {
+            padding: 0 10px;
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(226, 232, 240, 0.5);
+        }
+
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            color: rgba(248, 250, 252, 0.84);
+            text-decoration: none;
+            transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-icon {
+            width: 18px;
+            text-align: center;
+            opacity: 0.92;
+        }
+
+        .profile-card {
+            margin-top: auto;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 16px;
+        }
+
+        .profile-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: rgba(255, 255, 255, 0.16);
+            font-weight: 700;
+        }
+
+        .profile-name {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .profile-role {
+            margin: 4px 0 0;
+            font-size: 0.8rem;
+            color: rgba(226, 232, 240, 0.76);
+        }
+
+        .verified-pill {
+            margin-top: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: var(--radius-pill);
+            background: rgba(34, 197, 94, 0.14);
+            color: #d8fbe2;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 22px 32px 18px;
+            background: rgba(246, 248, 251, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(219, 228, 238, 0.85);
+        }
+
+        .page-context small {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            margin-bottom: 6px;
+        }
+
+        .page-context h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .search {
+            min-width: 260px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 14px;
+            height: 46px;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-control);
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+        }
+
+        .search input {
+            border: 0;
+            outline: 0;
+            width: 100%;
+            background: transparent;
+            color: var(--text-primary);
+        }
+
+        .icon-button,
+        .btn {
+            height: 46px;
+            border-radius: var(--radius-control);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .icon-button {
+            width: 46px;
+            background: var(--bg-surface);
+            border-color: var(--border-subtle);
+            color: var(--text-secondary);
+        }
+
+        .icon-button:hover {
+            border-color: var(--border-strong);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        .btn {
+            padding: 0 18px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--brand-primary);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-primary-hover);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-secondary {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            border-color: var(--border-subtle);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--border-strong);
+            background: #fbfdff;
+        }
+
+        .btn-ai {
+            background: var(--bg-ai);
+            color: var(--accent-ai);
+            border-color: #dbe1ff;
+        }
+
+        .btn-ai:hover {
+            background: var(--bg-ai-strong);
+        }
+
+        .content {
+            padding: 28px 32px 40px;
+            display: grid;
+            gap: 24px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.75fr);
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        .panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .hero-card {
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: fit-content;
+            padding: 7px 12px;
+            border-radius: var(--radius-pill);
+            background: var(--bg-surface-muted);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .eyebrow.ai {
+            background: var(--bg-ai);
+            color: var(--accent-ai);
+        }
+
+        .hero-card h1 {
+            margin: 0;
+            font-size: clamp(1.9rem, 3vw, 2.35rem);
+            line-height: 1.12;
+            letter-spacing: -0.04em;
+        }
+
+        .hero-card p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.98rem;
+            line-height: 1.65;
+            max-width: 58ch;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-meta {
+            margin-top: auto;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .hero-meta-card {
+            flex: 1 1 180px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-surface-muted);
+            border-radius: 16px;
+            padding: 14px 16px;
+        }
+
+        .hero-meta-card span {
+            display: block;
+            font-size: 0.79rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .hero-meta-card strong {
+            display: block;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .attention-card {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .attention-card h3,
+        .section-header h3,
+        .table-header h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .attention-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .attention-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            padding: 14px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 15px;
+            background: #fcfdff;
+        }
+
+        .attention-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .attention-indicator.danger {
+            background: var(--danger);
+        }
+
+        .attention-indicator.warning {
+            background: var(--warning);
+        }
+
+        .attention-indicator.info {
+            background: var(--info);
+        }
+
+        .attention-item strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.94rem;
+        }
+
+        .attention-item p {
+            margin: 0;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-size: 0.86rem;
+        }
+
+        .grid-four {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .kpi-card {
+            padding: 20px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .kpi-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .kpi-label {
+            color: var(--text-secondary);
+            font-size: 0.86rem;
+            font-weight: 600;
+        }
+
+        .kpi-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: var(--bg-surface-muted);
+            color: var(--brand-secondary);
+        }
+
+        .kpi-value {
+            font-size: 1.9rem;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+        }
+
+        .kpi-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 0.83rem;
+        }
+
+        .trend-up {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .trend-down {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.9fr);
+            gap: 24px;
+        }
+
+        .section-card {
+            padding: 22px;
+            display: grid;
+            gap: 18px;
+        }
+
+        .section-header,
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .section-header p,
+        .table-header p {
+            margin: 4px 0 0;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+        }
+
+        .case-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .case-card {
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 18px;
+            display: grid;
+            gap: 14px;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+        }
+
+        .case-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .case-code {
+            display: inline-flex;
+            padding: 6px 10px;
+            border-radius: var(--radius-pill);
+            background: var(--bg-surface-muted);
+            color: var(--brand-primary);
+            font-size: 0.78rem;
+            font-weight: 700;
+            width: fit-content;
+        }
+
+        .case-card h4 {
+            margin: 10px 0 4px;
+            font-size: 1.02rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .case-card p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 10px;
+            border-radius: var(--radius-pill);
+            font-size: 0.76rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .badge.active {
+            color: var(--success);
+            background: var(--success-soft);
+        }
+
+        .badge.warning {
+            color: var(--warning);
+            background: var(--warning-soft);
+        }
+
+        .badge.danger {
+            color: var(--danger);
+            background: var(--danger-soft);
+        }
+
+        .badge.ai {
+            color: var(--accent-ai);
+            background: var(--bg-ai);
+        }
+
+        .case-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .mini-stat {
+            padding: 12px;
+            border-radius: 14px;
+            background: var(--bg-surface-muted);
+        }
+
+        .mini-stat span {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            margin-bottom: 6px;
+        }
+
+        .mini-stat strong {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .risk-meter {
+            display: grid;
+            gap: 10px;
+        }
+
+        .risk-track {
+            width: 100%;
+            height: 9px;
+            border-radius: 999px;
+            background: #edf1f7;
+            overflow: hidden;
+        }
+
+        .risk-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #f59e0b 0%, #dc2626 100%);
+        }
+
+        .risk-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+        }
+
+        .right-stack {
+            display: grid;
+            gap: 18px;
+        }
+
+        .context-list,
+        .task-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .context-item,
+        .task-item {
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid var(--border-subtle);
+            background: #fcfdff;
+        }
+
+        .context-item span,
+        .task-item span {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.77rem;
+            margin-bottom: 5px;
+        }
+
+        .context-item strong,
+        .task-item strong {
+            display: block;
+            font-size: 0.93rem;
+        }
+
+        .ai-panel {
+            background: linear-gradient(180deg, #ffffff 0%, #f7f8ff 100%);
+            border: 1px solid #dbe1ff;
+        }
+
+        .ai-response {
+            display: grid;
+            gap: 14px;
+        }
+
+        .ai-response p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .table-card {
+            overflow: hidden;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: #fbfcfe;
+        }
+
+        tbody tr:hover {
+            background: #fbfdff;
+        }
+
+        .table-case strong {
+            display: block;
+            font-size: 0.92rem;
+        }
+
+        .table-case span {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .cell-link {
+            color: var(--brand-secondary);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .mobile-topbar {
+            display: none;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-four {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .workspace-grid,
+            .hero,
+            .case-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 980px) {
+            .app-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .mobile-topbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 16px 20px 0;
+                gap: 12px;
+            }
+
+            .mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-weight: 700;
+                color: var(--brand-primary);
+            }
+
+            .topbar {
+                padding: 16px 20px 18px;
+            }
+
+            .content {
+                padding: 20px 20px 34px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .topbar,
+            .topbar-actions,
+            .hero-actions,
+            .hero-meta,
+            .section-header,
+            .table-header {
+                align-items: stretch;
+            }
+
+            .topbar {
+                flex-direction: column;
+            }
+
+            .topbar-actions {
+                width: 100%;
+                justify-content: stretch;
+            }
+
+            .search {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .icon-button,
+            .btn {
+                width: 100%;
+            }
+
+            .grid-four {
+                grid-template-columns: 1fr;
+            }
+
+            .case-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-card,
+            .attention-card,
+            .section-card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">LM</div>
+                <div class="brand-copy">
+                    <h1>LegalMind AI</h1>
+                    <p>Professional legal workflow</p>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-label">Workspace</div>
+                <nav class="nav-list">
+                    <a class="nav-item active" href="#"><span class="nav-icon">▣</span><span>Dashboard</span></a>
+                    <a class="nav-item" href="#"><span class="nav-icon">◫</span><span>Cases</span></a>
+                    <a class="nav-item" href="#"><span class="nav-icon">◷</span><span>Deadlines</span></a>
+                    <a class="nav-item" href="#"><span class="nav-icon">▤</span><span>Documents</span></a>
+                </nav>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-label">AI Tools</div>
+                <nav class="nav-list">
+                    <a class="nav-item" href="#"><span class="nav-icon">✦</span><span>AI Assistant</span></a>
+                    <a class="nav-item" href="#"><span class="nav-icon">⌕</span><span>Legal Research</span></a>
+                    <a class="nav-item" href="#"><span class="nav-icon">≣</span><span>Document Drafter</span></a>
+                    <a class="nav-item" href="#"><span class="nav-icon">§</span><span>Section Suggester</span></a>
+                </nav>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-label">System</div>
+                <nav class="nav-list">
+                    <a class="nav-item" href="#"><span class="nav-icon">⚙</span><span>Settings</span></a>
+                    <a class="nav-item" href="#"><span class="nav-icon">?</span><span>Help</span></a>
+                </nav>
+            </div>
+
+            <div class="profile-card">
+                <div class="profile-top">
+                    <div class="avatar">AS</div>
+                    <div>
+                        <p class="profile-name">Adv. Ajay Sharma</p>
+                        <p class="profile-role">Maharashtra Bar Council</p>
+                    </div>
+                </div>
+                <div class="verified-pill">✓ Verified Advocate</div>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="mobile-topbar">
+                <div class="mobile-brand">
+                    <div class="brand-mark" style="width: 36px; height: 36px; border-radius: 12px;">LM</div>
+                    <span>LegalMind AI</span>
+                </div>
+                <button class="icon-button" aria-label="Open navigation">☰</button>
+            </div>
+
+            <header class="topbar">
+                <div class="page-context">
+                    <small>Workspace / Case Command Center</small>
+                    <h2>Good morning, Advocate Ajay</h2>
+                </div>
+                <div class="topbar-actions">
+                    <label class="search" aria-label="Global search">
+                        <span>⌕</span>
+                        <input type="text" placeholder="Search cases, documents, clients">
+                    </label>
+                    <button class="icon-button" aria-label="Notifications">⎋</button>
+                    <button class="btn btn-ai">✦ AI Assistant</button>
+                    <button class="btn btn-primary">+ New Case</button>
+                </div>
+            </header>
+
+            <section class="content">
+                <div class="hero">
+                    <section class="panel hero-card">
+                        <div class="eyebrow">Today’s legal operations</div>
+                        <h1>Here’s what needs your attention before the Pune District Court hearing cycle.</h1>
+                        <p>
+                            LegalMind AI is monitoring deadlines, document readiness, and matter risk across your active litigation and advisory workload.
+                            Priority review is required for high-risk criminal and property matters due within the next five days.
+                        </p>
+                        <div class="hero-actions">
+                            <button class="btn btn-primary">Open Priority Cases</button>
+                            <button class="btn btn-secondary">Review Deadlines</button>
+                            <button class="btn btn-ai">Run AI Risk Review</button>
+                        </div>
+                        <div class="hero-meta">
+                            <div class="hero-meta-card">
+                                <span>Most urgent matter</span>
+                                <strong>LM-2026-0142 · Rajesh Sharma</strong>
+                            </div>
+                            <div class="hero-meta-card">
+                                <span>Next hearing</span>
+                                <strong>18 Aug 2026 · 10:30 AM</strong>
+                            </div>
+                            <div class="hero-meta-card">
+                                <span>AI recommendation</span>
+                                <strong>File document response within 24 hours</strong>
+                            </div>
+                        </div>
+                    </section>
+
+                    <aside class="panel attention-card">
+                        <div class="section-header">
+                            <div>
+                                <h3>Attention Queue</h3>
+                                <p>High-impact items surfaced by workflow and AI review.</p>
+                            </div>
+                        </div>
+                        <div class="attention-list">
+                            <div class="attention-item">
+                                <div class="attention-indicator danger"></div>
+                                <div>
+                                    <strong>Reply notice pending in LM-2026-0142</strong>
+                                    <p>The matter has a 78/100 risk score because the opposing filing has not been addressed.</p>
+                                </div>
+                            </div>
+                            <div class="attention-item">
+                                <div class="attention-indicator warning"></div>
+                                <div>
+                                    <strong>Two affidavits still awaiting signature</strong>
+                                    <p>Client-side confirmation is incomplete for the property recovery matter in Pune.</p>
+                                </div>
+                            </div>
+                            <div class="attention-item">
+                                <div class="attention-indicator info"></div>
+                                <div>
+                                    <strong>AI found comparable precedents</strong>
+                                    <p>Three new research matches were added for anticipatory bail review this morning.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+
+                <div class="grid-four">
+                    <section class="panel kpi-card">
+                        <div class="kpi-top">
+                            <span class="kpi-label">Active Cases</span>
+                            <div class="kpi-icon">◫</div>
+                        </div>
+                        <div class="kpi-value">24</div>
+                        <div class="kpi-foot">
+                            <span>Across litigation and advisory</span>
+                            <span class="trend-up">+3 this month</span>
+                        </div>
+                    </section>
+
+                    <section class="panel kpi-card">
+                        <div class="kpi-top">
+                            <span class="kpi-label">Urgent Matters</span>
+                            <div class="kpi-icon">!</div>
+                        </div>
+                        <div class="kpi-value">06</div>
+                        <div class="kpi-foot">
+                            <span>Need action within 72 hours</span>
+                            <span class="trend-down">2 escalated</span>
+                        </div>
+                    </section>
+
+                    <section class="panel kpi-card">
+                        <div class="kpi-top">
+                            <span class="kpi-label">Upcoming Deadlines</span>
+                            <div class="kpi-icon">◷</div>
+                        </div>
+                        <div class="kpi-value">11</div>
+                        <div class="kpi-foot">
+                            <span>Next 7 days</span>
+                            <span>4 due soon</span>
+                        </div>
+                    </section>
+
+                    <section class="panel kpi-card">
+                        <div class="kpi-top">
+                            <span class="kpi-label">Documents Pending</span>
+                            <div class="kpi-icon">▤</div>
+                        </div>
+                        <div class="kpi-value">09</div>
+                        <div class="kpi-foot">
+                            <span>Awaiting review or indexing</span>
+                            <span>3 AI indexed</span>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="workspace-grid">
+                    <section class="panel section-card">
+                        <div class="section-header">
+                            <div>
+                                <h3>Priority Matters</h3>
+                                <p>Case cards showing status, deadline pressure, and legal risk.</p>
+                            </div>
+                            <button class="btn btn-secondary">View All Cases</button>
+                        </div>
+
+                        <div class="case-grid">
+                            <article class="case-card">
+                                <div class="case-top">
+                                    <div>
+                                        <span class="case-code">LM-2026-0142</span>
+                                        <h4>Rajesh Sharma</h4>
+                                        <p>Criminal Matter · District Court, Pune</p>
+                                    </div>
+                                    <span class="badge danger">High Risk</span>
+                                </div>
+                                <div class="case-stats">
+                                    <div class="mini-stat">
+                                        <span>Status</span>
+                                        <strong>Active</strong>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span>Next Hearing</span>
+                                        <strong>18 Aug 2026</strong>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span>Last Updated</span>
+                                        <strong>Today, 8:10 AM</strong>
+                                    </div>
+                                </div>
+                                <div class="risk-meter">
+                                    <div class="risk-meta">
+                                        <span>Risk score</span>
+                                        <strong>78 / 100</strong>
+                                    </div>
+                                    <div class="risk-track"><div class="risk-fill" style="width: 78%;"></div></div>
+                                    <div class="risk-meta">
+                                        <span>Factors: deadline urgency, missing reply draft, contradictory witness note</span>
+                                    </div>
+                                </div>
+                                <div class="hero-actions">
+                                    <button class="btn btn-primary">Open Case</button>
+                                    <button class="btn btn-ai">Ask AI</button>
+                                </div>
+                            </article>
+
+                            <article class="case-card">
+                                <div class="case-top">
+                                    <div>
+                                        <span class="case-code">LM-2026-0118</span>
+                                        <h4>Meera Kulkarni</h4>
+                                        <p>Property Recovery · Civil Judge Senior Division</p>
+                                    </div>
+                                    <span class="badge warning">Medium Risk</span>
+                                </div>
+                                <div class="case-stats">
+                                    <div class="mini-stat">
+                                        <span>Status</span>
+                                        <strong>Evidence Review</strong>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span>Next Deadline</span>
+                                        <strong>21 Aug 2026</strong>
+                                    </div>
+                                    <div class="mini-stat">
+                                        <span>Last Updated</span>
+                                        <strong>Yesterday</strong>
+                                    </div>
+                                </div>
+                                <div class="risk-meter">
+                                    <div class="risk-meta">
+                                        <span>Risk score</span>
+                                        <strong>52 / 100</strong>
+                                    </div>
+                                    <div class="risk-track"><div class="risk-fill" style="width: 52%; background: linear-gradient(90deg, #22c55e 0%, #f59e0b 100%);"></div></div>
+                                    <div class="risk-meta">
+                                        <span>Factors: signature pending, document completeness at 82%, filing window still safe</span>
+                                    </div>
+                                </div>
+                                <div class="hero-actions">
+                                    <button class="btn btn-primary">Open Case</button>
+                                    <button class="btn btn-secondary">Review Documents</button>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <div class="right-stack">
+                        <section class="panel section-card">
+                            <div class="section-header">
+                                <div>
+                                    <h3>Case Context Snapshot</h3>
+                                    <p>Everything the advocate should know before opening the matter.</p>
+                                </div>
+                            </div>
+                            <div class="context-list">
+                                <div class="context-item">
+                                    <span>Primary matter in review</span>
+                                    <strong>Rajesh Sharma v. State of Maharashtra</strong>
+                                </div>
+                                <div class="context-item">
+                                    <span>Critical missing item</span>
+                                    <strong>Reply to notice not finalized</strong>
+                                </div>
+                                <div class="context-item">
+                                    <span>Latest document status</span>
+                                    <strong>Charge summary indexed by AI at 7:48 AM</strong>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="panel section-card ai-panel">
+                            <div class="section-header">
+                                <div>
+                                    <div class="eyebrow ai">AI Analysis</div>
+                                    <h3 style="margin-top: 12px;">Assistant Recommendation</h3>
+                                    <p>Embedded AI guidance, framed like legal workflow support rather than a chatbot.</p>
+                                </div>
+                            </div>
+                            <div class="ai-response">
+                                <p>
+                                    The highest-value action today is to finalize the reply draft in LM-2026-0142, then attach the indexed witness note and hearing summary.
+                                    Based on current context, this should reduce immediate procedural risk before the 18 August 2026 hearing.
+                                </p>
+                                <div class="chip-row">
+                                    <span class="chip">Source: Witness Note</span>
+                                    <span class="chip">Source: Charge Summary</span>
+                                    <span class="chip">Deadline: 1 day remaining</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="panel section-card">
+                            <div class="section-header">
+                                <div>
+                                    <h3>Today’s Workflow</h3>
+                                    <p>Operational task list across cases and documents.</p>
+                                </div>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-item">
+                                    <span>10:30 AM</span>
+                                    <strong>Review bail argument draft for Rajesh Sharma</strong>
+                                </div>
+                                <div class="task-item">
+                                    <span>1:15 PM</span>
+                                    <strong>Upload signed affidavit for Meera Kulkarni matter</strong>
+                                </div>
+                                <div class="task-item">
+                                    <span>4:00 PM</span>
+                                    <strong>Save research basket for anticipatory bail precedents</strong>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <section class="panel table-card">
+                    <div class="section-card" style="padding-bottom: 0;">
+                        <div class="table-header">
+                            <div>
+                                <h3>Upcoming Deadlines</h3>
+                                <p>Professional table treatment with legal matter context and clear status cues.</p>
+                            </div>
+                            <button class="btn btn-secondary">Open Calendar</button>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Case</th>
+                                    <th>Deadline Type</th>
+                                    <th>Date</th>
+                                    <th>Countdown</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="table-case">
+                                        <strong>LM-2026-0142</strong>
+                                        <span>Rajesh Sharma · Criminal Matter</span>
+                                    </td>
+                                    <td>Reply to notice</td>
+                                    <td>18 Aug 2026</td>
+                                    <td>1 day</td>
+                                    <td><span class="badge danger">Overdue Risk</span></td>
+                                    <td><a class="cell-link" href="#">Open Case</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="table-case">
+                                        <strong>LM-2026-0118</strong>
+                                        <span>Meera Kulkarni · Property Recovery</span>
+                                    </td>
+                                    <td>Affidavit filing</td>
+                                    <td>21 Aug 2026</td>
+                                    <td>4 days</td>
+                                    <td><span class="badge warning">Due Soon</span></td>
+                                    <td><a class="cell-link" href="#">Review Docs</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="table-case">
+                                        <strong>LM-2026-0103</strong>
+                                        <span>Ashwin Patil · Contract Dispute</span>
+                                    </td>
+                                    <td>Document indexing</td>
+                                    <td>24 Aug 2026</td>
+                                    <td>7 days</td>
+                                    <td><span class="badge ai">AI Processing</span></td>
+                                    <td><a class="cell-link" href="#">View Status</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="table-case">
+                                        <strong>LM-2026-0087</strong>
+                                        <span>Nisha Rao · Employment Advisory</span>
+                                    </td>
+                                    <td>Client review call</td>
+                                    <td>27 Aug 2026</td>
+                                    <td>10 days</td>
+                                    <td><span class="badge active">On Track</span></td>
+                                    <td><a class="cell-link" href="#">Schedule</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
