@@ -1,1144 +1,202 @@
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LegalMind AI | Advocate Sign In</title>
-    <style>
-        :root {
-            --bg-app: #f6f8fb;
-            --bg-surface: #ffffff;
-            --bg-surface-muted: #eef3f9;
-            --bg-dark: #0f172a;
-            --bg-dark-soft: #162447;
-            --brand-primary: #162447;
-            --brand-primary-hover: #1f315c;
-            --brand-secondary: #315b96;
-            --accent-ai: #4f46e5;
-            --accent-ai-soft: #eef2ff;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --text-inverse: #f8fafc;
-            --border-subtle: #dbe4ee;
-            --border-strong: #cbd5e1;
-            --success: #15803d;
-            --success-soft: #eaf8ee;
-            --warning: #b45309;
-            --warning-soft: #fff4e8;
-            --danger: #b91c1c;
-            --danger-soft: #fef0f0;
-            --info: #2563eb;
-            --shadow-sm: 0 10px 30px rgba(15, 23, 42, 0.06);
-            --shadow-md: 0 20px 45px rgba(15, 23, 42, 0.10);
-            --radius-xl: 28px;
-            --radius-lg: 20px;
-            --radius-md: 14px;
-            --radius-pill: 999px;
-            --container: 1200px;
-            --transition: 180ms ease;
-            --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            margin: 0;
-            font-family: var(--font-sans);
-            color: var(--text-primary);
-            background:
-                radial-gradient(circle at top left, rgba(79, 70, 229, 0.05), transparent 22%),
-                linear-gradient(180deg, #f8fafc 0%, #f3f7fb 100%);
-            -webkit-font-smoothing: antialiased;
-        }
-
-        img {
-            max-width: 100%;
-            display: block;
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        button,
-        input {
-            font: inherit;
-        }
-
-        .container {
-            width: min(var(--container), calc(100% - 32px));
-            margin: 0 auto;
-        }
-
-        .site-header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(246, 248, 251, 0.88);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(219, 228, 238, 0.8);
-        }
-
-        .site-header-inner {
-            min-height: 78px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .brand-mark {
-            width: 44px;
-            height: 44px;
-            border-radius: 15px;
-            display: grid;
-            place-items: center;
-            background: linear-gradient(135deg, #eff4ff 0%, #cad8ff 100%);
-            color: var(--brand-primary);
-            font-weight: 800;
-        }
-
-        .brand-copy strong {
-            display: block;
-            font-size: 1rem;
-            letter-spacing: -0.02em;
-        }
-
-        .brand-copy span {
-            display: block;
-            margin-top: 4px;
-            color: var(--text-secondary);
-            font-size: 0.82rem;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .header-link {
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 0.92rem;
-        }
-
-        .header-link:hover {
-            color: var(--text-primary);
-        }
-
-        .btn {
-            height: 48px;
-            border: 1px solid transparent;
-            border-radius: var(--radius-md);
-            padding: 0 18px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-weight: 700;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-primary {
-            background: var(--brand-primary);
-            color: #fff;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn-primary:hover {
-            background: var(--brand-primary-hover);
-        }
-
-        .btn-secondary {
-            background: var(--bg-surface);
-            color: var(--text-primary);
-            border-color: var(--border-subtle);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--border-strong);
-            background: #fbfdff;
-        }
-
-        .btn-ai {
-            background: var(--accent-ai-soft);
-            color: var(--accent-ai);
-            border-color: #dbe1ff;
-        }
-
-        .btn-ai:hover {
-            background: #dfe6ff;
-        }
-
-        .hero {
-            padding: 42px 0 30px;
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 28px;
-            align-items: stretch;
-        }
-
-        .hero-panel {
-            background: linear-gradient(160deg, #10192f 0%, #162447 48%, #1d315f 100%);
-            color: var(--text-inverse);
-            border-radius: var(--radius-xl);
-            padding: 38px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-        }
-
-        .hero-panel::before,
-        .hero-panel::after {
-            content: "";
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .hero-panel::before {
-            width: 320px;
-            height: 320px;
-            right: -90px;
-            top: -80px;
-            background: radial-gradient(circle, rgba(219, 229, 255, 0.16), transparent 70%);
-        }
-
-        .hero-panel::after {
-            width: 260px;
-            height: 260px;
-            left: -90px;
-            bottom: -120px;
-            background: radial-gradient(circle, rgba(79, 70, 229, 0.18), transparent 70%);
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            display: grid;
-            gap: 24px;
-        }
-
-        .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            width: fit-content;
-            padding: 8px 12px;
-            border-radius: var(--radius-pill);
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            font-size: 0.76rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        .hero-title {
-            margin: 0;
-            font-size: clamp(2.35rem, 4vw, 3.5rem);
-            line-height: 1.04;
-            letter-spacing: -0.05em;
-            max-width: 11ch;
-        }
-
-        .hero-copy {
-            margin: 0;
-            max-width: 56ch;
-            color: rgba(226, 232, 240, 0.85);
-            font-size: 1rem;
-            line-height: 1.75;
-        }
-
-        .hero-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .hero-stats {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 14px;
-            margin-top: 8px;
-        }
-
-        .hero-stat {
-            padding: 16px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .hero-stat span {
-            display: block;
-            color: rgba(226, 232, 240, 0.72);
-            font-size: 0.78rem;
-            margin-bottom: 8px;
-        }
-
-        .hero-stat strong {
-            display: block;
-            font-size: 1rem;
-            letter-spacing: -0.02em;
-        }
-
-        .auth-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-xl);
-            padding: 32px;
-            box-shadow: var(--shadow-md);
-            align-self: center;
-        }
-
-        .auth-card h2 {
-            margin: 0 0 10px;
-            font-size: clamp(1.75rem, 3vw, 2.2rem);
-            line-height: 1.08;
-            letter-spacing: -0.04em;
-        }
-
-        .auth-card > p {
-            margin: 0 0 22px;
-            color: var(--text-secondary);
-            line-height: 1.65;
-            font-size: 0.94rem;
-        }
-
-        .pill-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 18px;
-        }
-
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: var(--radius-pill);
-            background: var(--bg-surface-muted);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-subtle);
-            font-size: 0.78rem;
-            font-weight: 700;
-        }
-
-        .pill-ai {
-            background: var(--accent-ai-soft);
-            color: var(--accent-ai);
-            border-color: #dbe1ff;
-        }
-
-        .form-grid {
-            display: grid;
-            gap: 16px;
-        }
-
-        .field {
-            display: grid;
-            gap: 8px;
-        }
-
-        .field-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-        }
-
-        .field label {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .field-row a {
-            color: var(--brand-secondary);
-            font-size: 0.83rem;
-            font-weight: 700;
-        }
-
-        .field-row a:hover {
-            text-decoration: underline;
-        }
-
-        .input-wrap {
-            position: relative;
-        }
-
-        .input-wrap span {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            pointer-events: none;
-        }
-
-        .input-wrap input {
-            width: 100%;
-            height: 50px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-subtle);
-            background: #fcfdff;
-            color: var(--text-primary);
-            padding: 0 16px 0 44px;
-            outline: 0;
-            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
-        }
-
-        .input-wrap input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .input-wrap input:focus {
-            border-color: rgba(49, 91, 150, 0.48);
-            box-shadow: 0 0 0 4px rgba(49, 91, 150, 0.10);
-            background: #fff;
-        }
-
-        .meta-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 14px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .check {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-secondary);
-            font-size: 0.88rem;
-        }
-
-        .check input {
-            width: 16px;
-            height: 16px;
-            accent-color: var(--brand-primary);
-        }
-
-        .meta-row small {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
-        .divider {
-            position: relative;
-            text-align: center;
-            margin: 22px 0;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
-        .divider::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            border-top: 1px solid var(--border-subtle);
-            z-index: 0;
-        }
-
-        .divider span {
-            position: relative;
-            z-index: 1;
-            padding: 0 12px;
-            background: var(--bg-surface);
-        }
-
-        .notice {
-            margin-top: 20px;
-            padding: 14px 16px;
-            border-radius: 16px;
-            background: var(--accent-ai-soft);
-            border: 1px solid #dbe1ff;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            line-height: 1.6;
-        }
-
-        .notice strong {
-            color: var(--accent-ai);
-        }
-
-        .auth-footer {
-            margin-top: 18px;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .auth-footer a {
-            color: var(--brand-secondary);
-            font-weight: 700;
-        }
-
-        .auth-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .section {
-            padding: 26px 0 10px;
-        }
-
-        .section-head {
-            max-width: 740px;
-            margin-bottom: 20px;
-        }
-
-        .section-head .eyebrow-light {
-            display: inline-flex;
-            padding: 7px 12px;
-            border-radius: var(--radius-pill);
-            background: var(--bg-surface-muted);
-            color: var(--brand-secondary);
-            font-size: 0.76rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            margin-bottom: 14px;
-        }
-
-        .section-head h3 {
-            margin: 0 0 10px;
-            font-size: clamp(1.7rem, 3vw, 2.3rem);
-            line-height: 1.12;
-            letter-spacing: -0.04em;
-        }
-
-        .section-head p {
-            margin: 0;
-            color: var(--text-secondary);
-            line-height: 1.7;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 18px;
-        }
-
-        .feature-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 22px;
-            padding: 22px;
-            box-shadow: var(--shadow-sm);
-            transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--border-strong);
-        }
-
-        .feature-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
-            display: grid;
-            place-items: center;
-            background: var(--bg-surface-muted);
-            color: var(--brand-secondary);
-            margin-bottom: 16px;
-            font-weight: 700;
-        }
-
-        .feature-card h4 {
-            margin: 0 0 10px;
-            font-size: 1rem;
-            letter-spacing: -0.02em;
-        }
-
-        .feature-card p {
-            margin: 0;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.65;
-        }
-
-        .workflow-band {
-            margin-top: 22px;
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 24px;
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-        }
-
-        .workflow-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-
-        .workflow-step {
-            padding: 24px 22px;
-            border-right: 1px solid var(--border-subtle);
-        }
-
-        .workflow-step:last-child {
-            border-right: 0;
-        }
-
-        .workflow-step span {
-            display: inline-flex;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-surface-muted);
-            color: var(--brand-primary);
-            font-size: 0.8rem;
-            font-weight: 800;
-            margin-bottom: 14px;
-        }
-
-        .workflow-step h5 {
-            margin: 0 0 8px;
-            font-size: 0.98rem;
-        }
-
-        .workflow-step p {
-            margin: 0;
-            color: var(--text-secondary);
-            font-size: 0.88rem;
-            line-height: 1.6;
-        }
-
-        .proof-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-            align-items: stretch;
-        }
-
-        .proof-card,
-        .quote-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 24px;
-            padding: 26px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .proof-list {
-            display: grid;
-            gap: 14px;
-        }
-
-        .proof-item {
-            display: flex;
-            gap: 14px;
-            align-items: flex-start;
-            padding: 14px;
-            border-radius: 16px;
-            background: #fbfdff;
-            border: 1px solid var(--border-subtle);
-        }
-
-        .proof-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-top: 7px;
-            flex-shrink: 0;
-        }
-
-        .proof-dot.success { background: var(--success); }
-        .proof-dot.warning { background: var(--warning); }
-        .proof-dot.info { background: var(--info); }
-
-        .proof-item strong {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.92rem;
-        }
-
-        .proof-item p {
-            margin: 0;
-            color: var(--text-secondary);
-            font-size: 0.88rem;
-            line-height: 1.6;
-        }
-
-        .quote-card {
-            background: linear-gradient(180deg, #ffffff 0%, #f7f9ff 100%);
-            border-color: #dbe1ff;
-        }
-
-        .quote-card .eyebrow-light {
-            display: inline-flex;
-            padding: 7px 12px;
-            border-radius: var(--radius-pill);
-            background: var(--accent-ai-soft);
-            color: var(--accent-ai);
-            font-size: 0.76rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            margin-bottom: 14px;
-        }
-
-        .quote-card blockquote {
-            margin: 0 0 18px;
-            font-size: 1.05rem;
-            line-height: 1.75;
-            color: var(--text-primary);
-        }
-
-        .quote-card footer {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .site-footer {
-            padding: 40px 0 50px;
-        }
-
-        .footer-card {
-            background: var(--bg-dark);
-            color: var(--text-inverse);
-            border-radius: 28px;
-            padding: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 18px;
-            flex-wrap: wrap;
-        }
-
-        .footer-card h4 {
-            margin: 0 0 6px;
-            font-size: 1.2rem;
-            letter-spacing: -0.03em;
-        }
-
-        .footer-card p {
-            margin: 0;
-            color: rgba(226, 232, 240, 0.78);
-            line-height: 1.6;
-        }
-
-        .reveal {
-            opacity: 0;
-            transform: translateY(24px);
-            transition: opacity 700ms ease, transform 700ms ease;
-        }
-
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        @media (max-width: 1100px) {
-            .hero-grid,
-            .proof-grid,
-            .feature-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .workflow-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .hero-stats {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 760px) {
-            .site-header-inner {
-                min-height: 72px;
-            }
-
-            .header-actions .header-link {
-                display: none;
-            }
-
-            .hero {
-                padding-top: 24px;
-            }
-
-            .hero-panel,
-            .auth-card,
-            .feature-card,
-            .proof-card,
-            .quote-card {
-                padding: 22px;
-            }
-
-            .workflow-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .workflow-step {
-                border-right: 0;
-                border-bottom: 1px solid var(--border-subtle);
-            }
-
-            .workflow-step:last-child {
-                border-bottom: 0;
-            }
-
-            .hero-actions,
-            .meta-row,
-            .footer-card {
-                align-items: stretch;
-            }
-
-            .btn,
-            .header-actions .btn {
-                width: 100%;
-            }
-
-            .header-actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
-        }
-
-        @media (max-width: 560px) {
-            .container {
-                width: min(100% - 20px, var(--container));
-            }
-
-            .site-header-inner {
-                flex-direction: column;
-                align-items: stretch;
-                justify-content: center;
-                padding: 12px 0;
-            }
-
-            .header-actions {
-                width: 100%;
-                flex-direction: column;
-            }
-
-            .hero-grid {
-                gap: 18px;
-            }
-
-            .hero-panel,
-            .auth-card {
-                border-radius: 22px;
-            }
-
-            .field-row,
-            .meta-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — LegalMind AI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
-<body>
-    <header class="site-header">
-        <div class="container site-header-inner">
-            <a class="brand" href="#">
-                <div class="brand-mark">LM</div>
-                <div class="brand-copy">
-                    <strong>LegalMind AI</strong>
-                    <span>Professional legal workflow platform</span>
-                </div>
-            </a>
+<body class="lm-auth-body">
 
-            <div class="header-actions">
-                <a class="header-link" href="#features">Features</a>
-                <a class="header-link" href="#workflow">Workflow</a>
-                <a class="header-link" href="#trust">Trust</a>
-                <button class="btn btn-secondary" type="button">Request Demo</button>
-            </div>
+<div class="lm-auth-layout">
+
+  <!-- ── LEFT PANEL ──────────────────────────────────── -->
+  <div class="lm-auth-left">
+
+    <div class="lm-auth-brand">
+      <div class="brand-mark">
+        <i class="bi bi-layers-fill"></i>
+      </div>
+      <span class="brand-name">LegalMind <span>AI</span></span>
+    </div>
+
+    <div class="lm-auth-hero">
+      <div class="lm-auth-eyebrow">
+        <i class="bi bi-shield-check-fill"></i>
+        Verified Advocates Only
+      </div>
+      <h1 class="lm-auth-heading">
+        The <em>intelligent</em> co-counsel for every case
+      </h1>
+      <p class="lm-auth-sub">
+        LegalMind AI brings together case management, legal research,
+        document drafting and AI assistance — in one secure platform
+        built exclusively for Indian advocates.
+      </p>
+    </div>
+
+    <div class="lm-feature-list">
+      <div class="lm-feature-item">
+        <div class="lm-feature-icon">
+          <i class="bi bi-chat-dots-fill"></i>
         </div>
-    </header>
-
-    <main>
-        <section class="hero">
-            <div class="container hero-grid">
-                <div class="hero-panel reveal">
-                    <div class="hero-content">
-                        <div class="eyebrow">Verified advocate workspace</div>
-                        <h1 class="hero-title">Sign in to your legal operations command center.</h1>
-                        <p class="hero-copy">
-                            Manage live matters, organize court deadlines, review documents, and work with AI-assisted legal tools
-                            inside a calm, secure, professional environment built for Indian advocates.
-                        </p>
-
-                        <div class="hero-actions">
-                            <a class="btn btn-primary" href="#signin">Sign In Now</a>
-                            <a class="btn btn-ai" href="#features">Explore Features</a>
-                        </div>
-
-                        <div class="hero-stats">
-                            <div class="hero-stat">
-                                <span>Priority matter</span>
-                                <strong>LM-2026-0142 · Rajesh Sharma</strong>
-                            </div>
-                            <div class="hero-stat">
-                                <span>Next hearing</span>
-                                <strong>18 Aug 2026 · Pune District Court</strong>
-                            </div>
-                            <div class="hero-stat">
-                                <span>AI status</span>
-                                <strong>3 research matches added this morning</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="auth-card reveal" id="signin">
-                    <div class="pill-row">
-                        <span class="pill">Secure Sign In</span>
-                        <span class="pill pill-ai">AI Legal Workflow</span>
-                    </div>
-
-                    <h2>Welcome back, Advocate.</h2>
-                    <p>
-                        Continue to your matters, deadlines, documents, and embedded AI workflow tools from one unified legal workspace.
-                    </p>
-
-                    <form class="form-grid">
-                        <div class="field">
-                            <label for="email">Professional Email</label>
-                            <div class="input-wrap">
-                                <span>@</span>
-                                <input id="email" type="email" placeholder="advocate@firm.in" autocomplete="email">
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <div class="field-row">
-                                <label for="password">Password</label>
-                                <a href="#">Forgot password?</a>
-                            </div>
-                            <div class="input-wrap">
-                                <span>•</span>
-                                <input id="password" type="password" placeholder="Enter your password" autocomplete="current-password">
-                            </div>
-                        </div>
-
-                        <div class="meta-row">
-                            <label class="check">
-                                <input type="checkbox">
-                                <span>Keep me signed in</span>
-                            </label>
-                            <small>Encrypted advocate session</small>
-                        </div>
-
-                        <button class="btn btn-primary" type="submit">Sign In to LegalMind AI</button>
-                    </form>
-
-                    <div class="divider"><span>or</span></div>
-
-                    <button class="btn btn-secondary" type="button">Continue with Advocate Verification</button>
-
-                    <div class="notice">
-                        <strong>Professional access only:</strong> LegalMind AI is designed for verified legal practitioners.
-                        AI-generated assistance should always be independently reviewed before professional use.
-                    </div>
-
-                    <div class="auth-footer">
-                        New to the platform?
-                        <a href="#">Create your advocate account</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="features">
-            <div class="container">
-                <div class="section-head reveal">
-                    <div class="eyebrow-light">Platform Features</div>
-                    <h3>A legal workflow platform designed for real professional use.</h3>
-                    <p>
-                        This page is intentionally scrollable so the login experience also communicates product value,
-                        credibility, and feature clarity before the advocate signs in.
-                    </p>
-                </div>
-
-                <div class="feature-grid">
-                    <article class="feature-card reveal">
-                        <div class="feature-icon">◫</div>
-                        <h4>Case Command Center</h4>
-                        <p>Track matters, hearing dates, case notes, client context, and legal risk in one structured workspace.</p>
-                    </article>
-
-                    <article class="feature-card reveal">
-                        <div class="feature-icon">◷</div>
-                        <h4>Deadline Intelligence</h4>
-                        <p>Review overdue actions, due-soon filings, and procedural windows before they become compliance risks.</p>
-                    </article>
-
-                    <article class="feature-card reveal">
-                        <div class="feature-icon">▤</div>
-                        <h4>Document Management</h4>
-                        <p>Upload, review, and organize legal records with processing status, AI indexing, and clean retrieval.</p>
-                    </article>
-
-                    <article class="feature-card reveal">
-                        <div class="feature-icon">✦</div>
-                        <h4>AI Case Assistant</h4>
-                        <p>Ask focused legal workflow questions and receive grounded assistance without turning the product into a chatbot clone.</p>
-                    </article>
-
-                    <article class="feature-card reveal">
-                        <div class="feature-icon">⌕</div>
-                        <h4>Legal Research</h4>
-                        <p>Surface relevant sections, provisions, and supporting research in a format optimized for practicing advocates.</p>
-                    </article>
-
-                    <article class="feature-card reveal">
-                        <div class="feature-icon">§</div>
-                        <h4>Section Suggester</h4>
-                        <p>Convert case facts into structured section suggestions with clear legal context and professional disclaimers.</p>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="workflow">
-            <div class="container">
-                <div class="section-head reveal">
-                    <div class="eyebrow-light">Workflow</div>
-                    <h3>Built to support the actual flow of legal work.</h3>
-                    <p>
-                        The product is positioned like serious legal software: matter intake, case tracking, document handling,
-                        research support, and AI-assisted decision support inside one coherent system.
-                    </p>
-                </div>
-
-                <div class="workflow-band reveal">
-                    <div class="workflow-grid">
-                        <div class="workflow-step">
-                            <span>1</span>
-                            <h5>Create or open a matter</h5>
-                            <p>Start from the case record, client context, and litigation timeline instead of disconnected tools.</p>
-                        </div>
-                        <div class="workflow-step">
-                            <span>2</span>
-                            <h5>Organize deadlines and documents</h5>
-                            <p>Track filings, notices, evidence, and document readiness with clear operational status.</p>
-                        </div>
-                        <div class="workflow-step">
-                            <span>3</span>
-                            <h5>Use AI with context</h5>
-                            <p>Get structured assistance for summaries, drafting, section review, and research support.</p>
-                        </div>
-                        <div class="workflow-step">
-                            <span>4</span>
-                            <h5>Move the case forward</h5>
-                            <p>Work from one professional command center instead of switching across fragmented dashboards.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="trust">
-            <div class="container proof-grid">
-                <div class="proof-card reveal">
-                    <div class="section-head" style="margin-bottom: 18px;">
-                        <div class="eyebrow-light">Why It Feels Credible</div>
-                        <h3 style="font-size: 1.8rem; margin-bottom: 8px;">Trust, clarity, and professional restraint.</h3>
-                        <p>Every visual decision supports a legal SaaS feel rather than a flashy AI product feel.</p>
-                    </div>
-
-                    <div class="proof-list">
-                        <div class="proof-item">
-                            <div class="proof-dot success"></div>
-                            <div>
-                                <strong>Verified advocate positioning</strong>
-                                <p>The experience is framed around legal professionals, not generic public users.</p>
-                            </div>
-                        </div>
-                        <div class="proof-item">
-                            <div class="proof-dot warning"></div>
-                            <div>
-                                <strong>Deadline-aware workflow design</strong>
-                                <p>The page language emphasizes hearings, filings, and procedural pressure rather than vague productivity claims.</p>
-                            </div>
-                        </div>
-                        <div class="proof-item">
-                            <div class="proof-dot info"></div>
-                            <div>
-                                <strong>Embedded AI, not AI overload</strong>
-                                <p>The AI accent is visible but restrained so the product still feels like professional software.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <aside class="quote-card reveal">
-                    <div class="eyebrow-light">LegalMind AI Promise</div>
-                    <blockquote>
-                        “A premium, secure, lawyer-only workspace that combines legal workflow clarity with embedded AI assistance
-                        without compromising trust, usability, or professional tone.”
-                    </blockquote>
-                    <footer>
-                        Intended for advocates, law firms, investors, and professional demonstrations.
-                    </footer>
-                </aside>
-            </div>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container">
-            <div class="footer-card reveal">
-                <div>
-                    <h4>Ready to continue building LegalMind AI?</h4>
-                    <p>This login page establishes the public-facing auth tone for the entire frontend system.</p>
-                </div>
-                <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                    <a class="btn btn-secondary" href="#signin">Review Sign In</a>
-                    <a class="btn btn-primary" href="#">Create Advocate Account</a>
-                </div>
-            </div>
+        <div>
+          <div class="lm-feature-title">AI Case Assistant</div>
+          <div class="lm-feature-desc">
+            Chat with Gemini AI — loaded with your full case context
+          </div>
         </div>
-    </footer>
+      </div>
+      <div class="lm-feature-item">
+        <div class="lm-feature-icon">
+          <i class="bi bi-shield-fill"></i>
+        </div>
+        <div>
+          <div class="lm-feature-title">Section Suggester</div>
+          <div class="lm-feature-desc">
+            Describe any incident — get IPC/CrPC sections instantly
+          </div>
+        </div>
+      </div>
+      <div class="lm-feature-item">
+        <div class="lm-feature-icon">
+          <i class="bi bi-file-earmark-text-fill"></i>
+        </div>
+        <div>
+          <div class="lm-feature-title">Document Drafter</div>
+          <div class="lm-feature-desc">
+            Generate legal notices, FIRs and affidavits in seconds
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <script>
-        const revealItems = document.querySelectorAll('.reveal');
+    <div class="lm-auth-stats">
+      <div class="lm-auth-stat">
+        <div class="lm-stat-num">1.7M</div>
+        <div class="lm-stat-lbl">Advocates in India</div>
+      </div>
+      <div class="lm-auth-stat">
+        <div class="lm-stat-num">10×</div>
+        <div class="lm-stat-lbl">Faster research</div>
+      </div>
+      <div class="lm-auth-stat">
+        <div class="lm-stat-num">100%</div>
+        <div class="lm-stat-lbl">Bar Council verified</div>
+      </div>
+    </div>
 
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    revealObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.18 });
+  </div>
 
-        revealItems.forEach((item) => revealObserver.observe(item));
-    </script>
+  <!-- ── RIGHT PANEL ─────────────────────────────────── -->
+  <div class="lm-auth-right">
+    <div class="lm-form-box">
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="lm-alert lm-alert-{{ category }} mb-3">
+              <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'error' %}x-circle{% else %}info-circle{% endif %}-fill"></i>
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <div class="lm-form-header">
+        <h2 class="lm-form-title">Welcome back</h2>
+        <p class="lm-form-subtitle">
+          Don't have an account?
+          <a href="{{ url_for('auth.register') }}">Register as advocate →</a>
+        </p>
+      </div>
+
+      <div class="lm-alert lm-alert-info mb-3">
+        <i class="bi bi-info-circle-fill"></i>
+        Access is restricted to verified Bar Council advocates only.
+      </div>
+
+      <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+
+        <!-- Email -->
+        <div class="lm-field">
+          <label class="lm-label">
+            Email address <span class="text-danger">*</span>
+          </label>
+          <div class="lm-input-wrap">
+            <i class="bi bi-envelope lm-input-icon"></i>
+            <input type="email"
+                   name="email"
+                   class="lm-input"
+                   placeholder="rajesh@lawchambers.com"
+                   required
+                   autocomplete="email">
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="lm-field">
+          <label class="lm-label">
+            Password <span class="text-danger">*</span>
+          </label>
+          <div class="lm-input-wrap">
+            <i class="bi bi-lock lm-input-icon"></i>
+            <input type="password"
+                   name="password"
+                   id="loginPw"
+                   class="lm-input"
+                   placeholder="Enter your password"
+                   required
+                   style="padding-right:42px">
+            <button type="button"
+                    class="lm-pw-toggle"
+                    onclick="togglePw('loginPw', this)">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mb-3">
+          <a href="#" class="lm-forgot">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="lm-btn-primary w-100">
+          <i class="bi bi-box-arrow-in-right"></i>
+          Sign in to LegalMind AI
+        </button>
+
+      </form>
+
+      <div class="lm-divider">
+        <span>New to the platform?</span>
+      </div>
+
+      <a href="{{ url_for('auth.register') }}"
+         class="lm-btn-outline w-100 text-center text-decoration-none">
+        <i class="bi bi-person-plus"></i>
+        Create an advocate account
+      </a>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function togglePw(id, btn) {
+  const inp  = document.getElementById(id);
+  const show = inp.type === "password";
+  inp.type   = show ? "text" : "password";
+  btn.innerHTML = show
+    ? '<i class="bi bi-eye-slash"></i>'
+    : '<i class="bi bi-eye"></i>';
+}
+</script>
 </body>
 </html>
