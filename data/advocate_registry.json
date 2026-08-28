@@ -1,0 +1,273 @@
+ 
+[
+  {
+    "enrollment_no": "MH/1234/2020",
+    "full_name": "Rajesh Kumar Sharma",
+    "state": "MH",
+    "bar_council": "Bar Council of Maharashtra",
+    "year_enrolled": 2020,
+    "specialization": "Criminal Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "MH/5678/2019",
+    "full_name": "Priya Mehta",
+    "state": "MH",
+    "bar_council": "Bar Council of Maharashtra",
+    "year_enrolled": 2019,
+    "specialization": "Civil Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "MH/9012/2021",
+    "full_name": "Suresh Patil",
+    "state": "MH",
+    "bar_council": "Bar Council of Maharashtra",
+    "year_enrolled": 2021,
+    "specialization": "Corporate Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "D/2341/2021",
+    "full_name": "Arjun Singh",
+    "state": "D",
+    "bar_council": "Bar Council of Delhi",
+    "year_enrolled": 2021,
+    "specialization": "Constitutional Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "D/5678/2018",
+    "full_name": "Neha Gupta",
+    "state": "D",
+    "bar_council": "Bar Council of Delhi",
+    "year_enrolled": 2018,
+    "specialization": "Family Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "D/1122/2022",
+    "full_name": "Vikram Malhotra",
+    "state": "D",
+    "bar_council": "Bar Council of Delhi",
+    "year_enrolled": 2022,
+    "specialization": "Criminal Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "KAR/4412/2018",
+    "full_name": "Deepa Nair",
+    "state": "KAR",
+    "bar_council": "Bar Council of Karnataka",
+    "year_enrolled": 2018,
+    "specialization": "Corporate Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "KAR/7890/2020",
+    "full_name": "Arun Kumar",
+    "state": "KAR",
+    "bar_council": "Bar Council of Karnataka",
+    "year_enrolled": 2020,
+    "specialization": "Civil Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "TN/9812/2018",
+    "full_name": "Ramesh Iyer",
+    "state": "TN",
+    "bar_council": "Bar Council of Tamil Nadu",
+    "year_enrolled": 2018,
+    "specialization": "Tax Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "TN/3456/2021",
+    "full_name": "Lakshmi Venkatesh",
+    "state": "TN",
+    "bar_council": "Bar Council of Tamil Nadu",
+    "year_enrolled": 2021,
+    "specialization": "Criminal Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "UP/4421/2022",
+    "full_name": "Amit Verma",
+    "state": "UP",
+    "bar_council": "Bar Council of Uttar Pradesh",
+    "year_enrolled": 2022,
+    "specialization": "Civil Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "UP/8834/2019",
+    "full_name": "Pooja Tiwari",
+    "state": "UP",
+    "bar_council": "Bar Council of Uttar Pradesh",
+    "year_enrolled": 2019,
+    "specialization": "Family Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "GUJ/1109/2020",
+    "full_name": "Hetal Patel",
+    "state": "GUJ",
+    "bar_council": "Bar Council of Gujarat",
+    "year_enrolled": 2020,
+    "specialization": "Corporate Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "GUJ/4456/2017",
+    "full_name": "Kiran Shah",
+    "state": "GUJ",
+    "bar_council": "Bar Council of Gujarat",
+    "year_enrolled": 2017,
+    "specialization": "Tax Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "WB/3302/2017",
+    "full_name": "Sourav Das",
+    "state": "WB",
+    "bar_council": "Bar Council of West Bengal",
+    "year_enrolled": 2017,
+    "specialization": "Criminal Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "WB/6677/2020",
+    "full_name": "Ananya Chatterjee",
+    "state": "WB",
+    "bar_council": "Bar Council of West Bengal",
+    "year_enrolled": 2020,
+    "specialization": "Civil Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "RAJ/7721/2021",
+    "full_name": "Kavita Sharma",
+    "state": "RAJ",
+    "bar_council": "Bar Council of Rajasthan",
+    "year_enrolled": 2021,
+    "specialization": "Family Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "RAJ/2233/2019",
+    "full_name": "Mahesh Choudhary",
+    "state": "RAJ",
+    "bar_council": "Bar Council of Rajasthan",
+    "year_enrolled": 2019,
+    "specialization": "Criminal Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "TS/5543/2020",
+    "full_name": "Ravi Reddy",
+    "state": "TS",
+    "bar_council": "Bar Council of Telangana",
+    "year_enrolled": 2020,
+    "specialization": "Corporate Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "TS/8891/2018",
+    "full_name": "Sravani Rao",
+    "state": "TS",
+    "bar_council": "Bar Council of Telangana",
+    "year_enrolled": 2018,
+    "specialization": "Civil Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "KL/8821/2019",
+    "full_name": "Anitha Menon",
+    "state": "KL",
+    "bar_council": "Bar Council of Kerala",
+    "year_enrolled": 2019,
+    "specialization": "Family Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "KL/3345/2021",
+    "full_name": "Vishnu Pillai",
+    "state": "KL",
+    "bar_council": "Bar Council of Kerala",
+    "year_enrolled": 2021,
+    "specialization": "Criminal Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "MP/1122/2020",
+    "full_name": "Rahul Joshi",
+    "state": "MP",
+    "bar_council": "Bar Council of Madhya Pradesh",
+    "year_enrolled": 2020,
+    "specialization": "Civil Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "MP/4456/2018",
+    "full_name": "Sunita Dubey",
+    "state": "MP",
+    "bar_council": "Bar Council of Madhya Pradesh",
+    "year_enrolled": 2018,
+    "specialization": "Criminal Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "PB/3312/2019",
+    "full_name": "Gurpreet Singh",
+    "state": "PB",
+    "bar_council": "Bar Council of Punjab",
+    "year_enrolled": 2019,
+    "specialization": "Criminal Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "PB/7788/2021",
+    "full_name": "Harpreet Kaur",
+    "state": "PB",
+    "bar_council": "Bar Council of Punjab",
+    "year_enrolled": 2021,
+    "specialization": "Family Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "HR/5544/2020",
+    "full_name": "Deepak Yadav",
+    "state": "HR",
+    "bar_council": "Bar Council of Haryana",
+    "year_enrolled": 2020,
+    "specialization": "Civil Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "OR/2211/2019",
+    "full_name": "Subhashree Panda",
+    "state": "OR",
+    "bar_council": "Bar Council of Odisha",
+    "year_enrolled": 2019,
+    "specialization": "Constitutional Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "AP/6634/2020",
+    "full_name": "Venkata Subramaniam",
+    "state": "AP",
+    "bar_council": "Bar Council of Andhra Pradesh",
+    "year_enrolled": 2020,
+    "specialization": "Tax Law",
+    "is_active": true
+  },
+  {
+    "enrollment_no": "AP/9923/2018",
+    "full_name": "Padma Laxmi",
+    "state": "AP",
+    "bar_council": "Bar Council of Andhra Pradesh",
+    "year_enrolled": 2018,
+    "specialization": "Family Law",
+    "is_active": true
+  }
+] 
