@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}LegalMind AI{% endblock %}</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ══ NAVBAR ══════════════════════════════════════════ -->
+<nav class="navbar navbar-expand-lg lm-navbar sticky-top">
+  <div class="container-fluid px-4">
+
+    <!-- Brand -->
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('cases.dashboard') }}">
+      <div class="brand-mark">
+        <i class="bi bi-layers-fill"></i>
+      </div>
+      <span class="brand-name">LegalMind <span>AI</span></span>
+    </a>
+
+    <!-- Nav Links -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto ms-4 gap-1">
+
+        <li class="nav-item">
+          <a class="nav-link lm-nav-link {% if request.endpoint == 'cases.dashboard' %}active{% endif %}"
+             href="{{ url_for('cases.dashboard') }}">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link lm-nav-link {% if 'cases' in request.endpoint %}active{% endif %}"
+             href="{{ url_for('cases.dashboard') }}">
+            <i class="bi bi-folder2-open"></i> Cases
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link lm-nav-link {% if request.endpoint == 'deadlines.all_deadlines' %}active{% endif %}"
+             href="{{ url_for('deadlines.all_deadlines') }}">
+            <i class="bi bi-calendar-week"></i> Deadlines
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link lm-nav-link {% if request.endpoint == 'ai.research' %}active{% endif %}"
+             href="{{ url_for('ai.research') }}">
+            <i class="bi bi-search"></i> Research
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link lm-nav-link {% if request.endpoint == 'ai.draft' %}active{% endif %}"
+             href="{{ url_for('ai.draft') }}">
+            <i class="bi bi-file-earmark-text"></i> Draft
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link lm-nav-link {% if request.endpoint == 'ai.suggest_sections_route' %}active{% endif %}"
+             href="{{ url_for('ai.suggest_sections_route') }}">
+            <i class="bi bi-shield-check"></i> Sections
+          </a>
+        </li>
+
+      </ul>
+
+      <!-- Right Side -->
+      <div class="d-flex align-items-center gap-3">
+
+        <!-- Search -->
+        <div class="lm-search-wrap d-none d-lg-block">
+          <i class="bi bi-search lm-search-icon"></i>
+          <input type="text" class="lm-search-input"
+                 placeholder="Search cases..."
+                 id="globalSearch"
+                 autocomplete="off">
+          <div class="lm-search-results" id="searchResults"></div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="position-relative">
+          <a href="{{ url_for('deadlines.all_deadlines') }}"
+             class="lm-icon-btn" title="Deadlines">
+            <i class="bi bi-bell"></i>
+          </a>
+        </div>
+
+        <!-- Profile Dropdown -->
+        <div class="dropdown">
+          <button class="lm-avatar-btn dropdown-toggle"
+                  data-bs-toggle="dropdown">
+            <div class="lm-avatar">
+              {{ session.lawyer_name[0] | upper if session.lawyer_name else 'A' }}
+            </div>
+            <span class="lm-avatar-name d-none d-lg-block">
+              Adv. {{ session.lawyer_name.split()[0] if session.lawyer_name else 'Lawyer' }}
+            </span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end lm-dropdown">
+            <li class="px-3 py-2">
+              <div class="fw-600 text-dark" style="font-size:13px">
+                {{ session.lawyer_name }}
+              </div>
+              <div class="text-muted" style="font-size:11px">
+                {{ session.enrollment_no }}
+              </div>
+              <span class="lm-verified-badge mt-1">
+                <i class="bi bi-patch-check-fill"></i> Verified
+              </span>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li>
+              <a class="dropdown-item lm-dropdown-item"
+                 href="{{ url_for('auth.profile') }}">
+                <i class="bi bi-person"></i> Profile
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item lm-dropdown-item"
+                 href="{{ url_for('cases.create_case') }}">
+                <i class="bi bi-plus-circle"></i> New Case
+              </a>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li>
+              <a class="dropdown-item lm-dropdown-item text-danger"
+                 href="{{ url_for('auth.logout') }}">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobile Toggle -->
+    <button class="navbar-toggler border-0" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <i class="bi bi-list fs-4 text-dark"></i>
+    </button>
+
+  </div>
+</nav>
+
+<!-- ══ FLASH MESSAGES ═══════════════════════════════════ -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="lm-flash-container">
+      {% for category, message in messages %}
+        <div class="lm-flash lm-flash-{{ category }} d-flex align-items-center gap-2">
+          {% if category == 'success' %}
+            <i class="bi bi-check-circle-fill"></i>
+          {% elif category == 'error' %}
+            <i class="bi bi-x-circle-fill"></i>
+          {% elif category == 'warning' %}
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          {% else %}
+            <i class="bi bi-info-circle-fill"></i>
+          {% endif %}
+          {{ message }}
+          <button class="lm-flash-close ms-auto"
+                  onclick="this.parentElement.remove()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- ══ MAIN CONTENT ═════════════════════════════════════ -->
+<main class="lm-main">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ══ FOOTER ═══════════════════════════════════════════ -->
+<footer class="lm-footer">
+  <div class="container-fluid px-4">
+    <div class="d-flex align-items-center justify-content-between">
+      <span>© 2026 LegalMind AI — Intelligent Legal Workflow Agent</span>
+      <span class="lm-verified-badge">
+        <i class="bi bi-patch-check-fill"></i>
+        Bar Council Verified Platform
+      </span>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Global Search Script -->
+<script>
+const searchInput  = document.getElementById("globalSearch");
+const searchResults= document.getElementById("searchResults");
+
+if (searchInput) {
+  let searchTimer;
+  searchInput.addEventListener("input", function () {
+    clearTimeout(searchTimer);
+    const q = this.value.trim();
+
+    if (q.length < 2) {
+      searchResults.innerHTML = "";
+      searchResults.classList.remove("show");
+      return;
+    }
+
+    searchTimer = setTimeout(() => {
+      fetch(`/cases/search?q=${encodeURIComponent(q)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.length === 0) {
+            searchResults.innerHTML =
+              `<div class="lm-search-item text-muted">No cases found</div>`;
+          } else {
+            searchResults.innerHTML = data.map(c => `
+              <a href="/cases/${c.id}" class="lm-search-item">
+                <div class="fw-500">${c.title}</div>
+                <div class="text-muted" style="font-size:11px">
+                  ${c.client_name} · ${c.case_type}
+                </div>
+              </a>
+            `).join("");
+          }
+          searchResults.classList.add("show");
+        })
+        .catch(() => searchResults.classList.remove("show"));
+    }, 300);
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!searchInput.contains(e.target)) {
+      searchResults.classList.remove("show");
+    }
+  });
+}
+
+// Auto-dismiss flash messages
+setTimeout(() => {
+  document.querySelectorAll(".lm-flash").forEach(el => {
+    el.style.opacity = "0";
+    setTimeout(() => el.remove(), 300);
+  });
+}, 4000);
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html> 
