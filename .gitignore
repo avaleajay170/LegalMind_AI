@@ -224,3 +224,11 @@ legalmind.db
 uploads/ 
 generated/ 
 vector_store/ 
+
+# Legal PDFs
+data/*.pdf
+
+# FAISS vector store
+vector_store/
+*.faiss
+*.pkl
