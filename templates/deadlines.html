@@ -1,0 +1,601 @@
+{% extends "base.html" %}
+{% block title %}Deadlines — LegalMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- ── PAGE HEADER ──────────────────────────────────── -->
+  <div class="d-flex align-items-center
+              justify-content-between mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <div class="lm-section-bar"></div>
+        <h2 class="lm-section-title mb-0">Deadline Tracker</h2>
+      </div>
+      <p class="text-muted mb-0"
+         style="font-size:13.5px;margin-left:14px">
+        All hearings, filings and limitation periods
+        across your active cases.
+      </p>
+    </div>
+    <button class="lm-btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#addDeadlineModal">
+      <i class="bi bi-plus-circle"></i> Add Deadline
+    </button>
+  </div>
+
+  <!-- ── SUMMARY STATS ────────────────────────────────── -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="lm-stat-card">
+        <div class="lm-stat-icon lm-stat-red">
+          <i class="bi bi-exclamation-circle"></i>
+        </div>
+        <div>
+          <div class="lm-stat-num">{{ overdue | length }}</div>
+          <div class="lm-stat-lbl">Overdue</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="lm-stat-card">
+        <div class="lm-stat-icon lm-stat-amber">
+          <i class="bi bi-clock"></i>
+        </div>
+        <div>
+          <div class="lm-stat-num">{{ soon | length }}</div>
+          <div class="lm-stat-lbl">Due Soon</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="lm-stat-card">
+        <div class="lm-stat-icon lm-stat-green">
+          <i class="bi bi-calendar-check"></i>
+        </div>
+        <div>
+          <div class="lm-stat-num">{{ safe | length }}</div>
+          <div class="lm-stat-lbl">On Track</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="lm-stat-card">
+        <div class="lm-stat-icon lm-stat-blue">
+          <i class="bi bi-check2-circle"></i>
+        </div>
+        <div>
+          <div class="lm-stat-num">{{ done | length }}</div>
+          <div class="lm-stat-lbl">Completed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FILTER TABS ───────────────────────────────────── -->
+  <div class="d-flex gap-2 mb-4 flex-wrap">
+    <button class="lm-filter-tab active"
+            onclick="filterDeadlines('all', this)">
+      All
+      <span class="lm-filter-count">
+        {{ (overdue|length) + (soon|length) + (safe|length) }}
+      </span>
+    </button>
+    <button class="lm-filter-tab"
+            onclick="filterDeadlines('overdue', this)">
+      <span class="lm-dot lm-dot-red"></span>
+      Overdue
+      <span class="lm-filter-count">{{ overdue|length }}</span>
+    </button>
+    <button class="lm-filter-tab"
+            onclick="filterDeadlines('soon', this)">
+      <span class="lm-dot lm-dot-amber"></span>
+      Due Soon
+      <span class="lm-filter-count">{{ soon|length }}</span>
+    </button>
+    <button class="lm-filter-tab"
+            onclick="filterDeadlines('safe', this)">
+      <span class="lm-dot lm-dot-green"></span>
+      On Track
+      <span class="lm-filter-count">{{ safe|length }}</span>
+    </button>
+    <button class="lm-filter-tab"
+            onclick="filterDeadlines('done', this)">
+      <i class="bi bi-check2"></i>
+      Completed
+      <span class="lm-filter-count">{{ done|length }}</span>
+    </button>
+  </div>
+
+  <!-- ── DEADLINES TABLE ───────────────────────────────── -->
+  <div class="lm-panel">
+
+    <!-- OVERDUE -->
+    <div class="lm-dl-group" data-group="overdue">
+      {% if overdue %}
+      <div class="lm-dl-group-header lm-dl-group-red">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        Overdue — Immediate Action Required
+      </div>
+      {% for dl in overdue %}
+      <div class="lm-dl-row" data-urgency="overdue">
+        <div class="lm-dl-row-dot lm-dl-dot-red"></div>
+        <div class="lm-dl-row-body">
+          <div class="lm-dl-row-title">{{ dl.title }}</div>
+          <div class="lm-dl-row-meta">
+            <span><i class="bi bi-folder2-open"></i>
+              {{ dl.case_title }}</span>
+            <span><i class="bi bi-tag"></i>
+              {{ dl.deadline_type | capitalize }}</span>
+          </div>
+        </div>
+        <div class="lm-dl-row-date text-danger">
+          {{ dl.due_date }}
+        </div>
+        <span class="lm-dl-tag lm-dl-tag-red">OVERDUE</span>
+        <div class="lm-dl-row-actions">
+          <button class="lm-mini-btn text-success"
+                  onclick="markDone('{{ dl._id }}', this)">
+            <i class="bi bi-check2"></i> Done
+          </button>
+          <button class="lm-mini-btn text-danger"
+                  onclick="deleteDeadline('{{ dl._id }}', this)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    <!-- DUE SOON -->
+    <div class="lm-dl-group" data-group="soon">
+      {% if soon %}
+      <div class="lm-dl-group-header lm-dl-group-amber">
+        <i class="bi bi-clock-fill"></i>
+        Due Soon — Action Needed
+      </div>
+      {% for dl in soon %}
+      <div class="lm-dl-row" data-urgency="soon">
+        <div class="lm-dl-row-dot lm-dl-dot-amber"></div>
+        <div class="lm-dl-row-body">
+          <div class="lm-dl-row-title">{{ dl.title }}</div>
+          <div class="lm-dl-row-meta">
+            <span><i class="bi bi-folder2-open"></i>
+              {{ dl.case_title }}</span>
+            <span><i class="bi bi-tag"></i>
+              {{ dl.deadline_type | capitalize }}</span>
+          </div>
+        </div>
+        <div class="lm-dl-row-date text-warning">
+          {{ dl.due_date }}
+        </div>
+        <span class="lm-dl-tag lm-dl-tag-amber">SOON</span>
+        <div class="lm-dl-row-actions">
+          <button class="lm-mini-btn text-success"
+                  onclick="markDone('{{ dl._id }}', this)">
+            <i class="bi bi-check2"></i> Done
+          </button>
+          <button class="lm-mini-btn text-danger"
+                  onclick="deleteDeadline('{{ dl._id }}', this)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    <!-- ON TRACK -->
+    <div class="lm-dl-group" data-group="safe">
+      {% if safe %}
+      <div class="lm-dl-group-header lm-dl-group-green">
+        <i class="bi bi-calendar-check-fill"></i>
+        On Track — No Immediate Action
+      </div>
+      {% for dl in safe %}
+      <div class="lm-dl-row" data-urgency="safe">
+        <div class="lm-dl-row-dot lm-dl-dot-green"></div>
+        <div class="lm-dl-row-body">
+          <div class="lm-dl-row-title">{{ dl.title }}</div>
+          <div class="lm-dl-row-meta">
+            <span><i class="bi bi-folder2-open"></i>
+              {{ dl.case_title }}</span>
+            <span><i class="bi bi-tag"></i>
+              {{ dl.deadline_type | capitalize }}</span>
+          </div>
+        </div>
+        <div class="lm-dl-row-date text-success">
+          {{ dl.due_date }}
+        </div>
+        <span class="lm-dl-tag lm-dl-tag-green">OK</span>
+        <div class="lm-dl-row-actions">
+          <button class="lm-mini-btn text-success"
+                  onclick="markDone('{{ dl._id }}', this)">
+            <i class="bi bi-check2"></i> Done
+          </button>
+          <button class="lm-mini-btn text-danger"
+                  onclick="deleteDeadline('{{ dl._id }}', this)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    <!-- COMPLETED -->
+    <div class="lm-dl-group" data-group="done"
+         style="display:none">
+      {% if done %}
+      <div class="lm-dl-group-header lm-dl-group-blue">
+        <i class="bi bi-check2-circle-fill"></i>
+        Completed
+      </div>
+      {% for dl in done %}
+      <div class="lm-dl-row lm-dl-row-done"
+           data-urgency="done">
+        <div class="lm-dl-row-dot"
+             style="background:var(--lm-gray-400)"></div>
+        <div class="lm-dl-row-body">
+          <div class="lm-dl-row-title"
+               style="text-decoration:line-through;
+                      color:var(--lm-text-3)">
+            {{ dl.title }}
+          </div>
+          <div class="lm-dl-row-meta">
+            <span><i class="bi bi-folder2-open"></i>
+              {{ dl.case_title }}</span>
+          </div>
+        </div>
+        <div class="lm-dl-row-date text-muted">
+          {{ dl.due_date }}
+        </div>
+        <span class="lm-dl-tag"
+              style="background:var(--lm-gray-100);
+                     color:var(--lm-text-3)">
+          DONE
+        </span>
+        <div class="lm-dl-row-actions">
+          <button class="lm-mini-btn text-danger"
+                  onclick="deleteDeadline('{{ dl._id }}', this)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    <!-- EMPTY -->
+    {% if not overdue and not soon and not safe %}
+    <div class="lm-empty-state py-4">
+      <i class="bi bi-calendar-check lm-empty-icon"></i>
+      <h5>No deadlines yet</h5>
+      <p class="text-muted">
+        Add deadlines to your cases to track them here
+      </p>
+      <button class="lm-btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#addDeadlineModal">
+        <i class="bi bi-plus"></i> Add First Deadline
+      </button>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- ── ADD DEADLINE MODAL ─────────────────────────────── -->
+<div class="modal fade" id="addDeadlineModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content lm-modal">
+      <div class="modal-header">
+        <h5 class="modal-title fw-600">Add Deadline</h5>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST"
+              action="{{ url_for('deadlines.add_deadline') }}">
+
+          <!-- Case -->
+          <div class="lm-field">
+            <label class="lm-label">
+              Case <span class="text-danger">*</span>
+            </label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-folder2-open lm-input-icon"></i>
+              <select name="case_id"
+                      class="lm-input lm-select"
+                      required>
+                <option value="">Select case</option>
+                {% for case in cases %}
+                <option value="{{ case._id | string }}">
+                  {{ case.title }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Title -->
+          <div class="lm-field">
+            <label class="lm-label">
+              Deadline Title <span class="text-danger">*</span>
+            </label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-text-left lm-input-icon"></i>
+              <input type="text"
+                     name="title"
+                     class="lm-input"
+                     placeholder="e.g. Final Hearing, Document Submission"
+                     required>
+            </div>
+          </div>
+
+          <!-- Due Date -->
+          <div class="lm-field">
+            <label class="lm-label">
+              Due Date <span class="text-danger">*</span>
+            </label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-calendar lm-input-icon"></i>
+              <input type="date"
+                     name="due_date"
+                     class="lm-input"
+                     required>
+            </div>
+          </div>
+
+          <!-- Type -->
+          <div class="lm-field">
+            <label class="lm-label">Deadline Type</label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-tag lm-input-icon"></i>
+              <select name="deadline_type"
+                      class="lm-input lm-select">
+                <option value="hearing">Hearing</option>
+                <option value="filing">Filing</option>
+                <option value="limitation">Limitation Period</option>
+                <option value="compliance">Compliance</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="lm-field mb-0">
+            <label class="lm-label">Notes</label>
+            <textarea name="notes"
+                      class="lm-input lm-textarea"
+                      rows="2"
+                      placeholder="Any additional notes..."></textarea>
+          </div>
+
+          <button type="submit"
+                  class="lm-btn-primary w-100 mt-3">
+            <i class="bi bi-plus-circle"></i>
+            Add Deadline
+          </button>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.lm-filter-tab {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           6px;
+  padding:       7px 14px;
+  border-radius: 20px;
+  font-size:     13px;
+  font-weight:   500;
+  border:        1px solid var(--lm-border);
+  background:    var(--lm-white);
+  color:         var(--lm-text-3);
+  cursor:        pointer;
+  transition:    all 0.13s;
+  font-family:   var(--lm-font);
+}
+
+.lm-filter-tab:hover {
+  border-color: var(--lm-border-2);
+  color:        var(--lm-text);
+}
+
+.lm-filter-tab.active {
+  background:   var(--lm-indigo);
+  border-color: var(--lm-indigo);
+  color:        var(--lm-white);
+}
+
+.lm-filter-count {
+  background:    rgba(255,255,255,0.25);
+  padding:       1px 7px;
+  border-radius: 10px;
+  font-size:     11px;
+  font-weight:   700;
+}
+
+.lm-filter-tab:not(.active) .lm-filter-count {
+  background: var(--lm-gray-100);
+  color:      var(--lm-text-3);
+}
+
+.lm-dot {
+  width:         7px;
+  height:        7px;
+  border-radius: 50%;
+  flex-shrink:   0;
+}
+
+.lm-dot-red   { background: var(--lm-red);   }
+.lm-dot-amber { background: var(--lm-amber); }
+.lm-dot-green { background: var(--lm-green); }
+
+.lm-dl-group-header {
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  padding:       10px 14px;
+  border-radius: 8px;
+  font-size:     13px;
+  font-weight:   600;
+  margin-bottom: 8px;
+  margin-top:    4px;
+}
+
+.lm-dl-group-red   { background:#FEF2F2; color:var(--lm-red);   }
+.lm-dl-group-amber { background:#FFFBEB; color:var(--lm-amber); }
+.lm-dl-group-green { background:#ECFDF5; color:var(--lm-green); }
+.lm-dl-group-blue  { background:#EFF6FF; color:var(--lm-blue);  }
+
+.lm-dl-row {
+  display:       flex;
+  align-items:   center;
+  gap:           12px;
+  padding:       13px 14px;
+  border-radius: 8px;
+  border:        1px solid var(--lm-border);
+  margin-bottom: 8px;
+  background:    var(--lm-white);
+  transition:    all 0.13s;
+}
+
+.lm-dl-row:hover {
+  border-color: var(--lm-border-2);
+  box-shadow:   var(--lm-shadow-sm);
+}
+
+.lm-dl-row-done { opacity: 0.65; }
+
+.lm-dl-row-dot {
+  width:         9px;
+  height:        9px;
+  border-radius: 50%;
+  flex-shrink:   0;
+}
+
+.lm-dl-dot-red   { background: var(--lm-red);   }
+.lm-dl-dot-amber { background: var(--lm-amber); }
+.lm-dl-dot-green { background: var(--lm-green); }
+
+.lm-dl-row-body { flex: 1; min-width: 0; }
+
+.lm-dl-row-title {
+  font-size:   13.5px;
+  font-weight: 500;
+  color:       var(--lm-text);
+  white-space: nowrap;
+  overflow:    hidden;
+  text-overflow: ellipsis;
+}
+
+.lm-dl-row-meta {
+  display:   flex;
+  gap:       12px;
+  font-size: 11.5px;
+  color:     var(--lm-text-3);
+  margin-top: 3px;
+  flex-wrap: wrap;
+}
+
+.lm-dl-row-meta span {
+  display:     flex;
+  align-items: center;
+  gap:         4px;
+}
+
+.lm-dl-row-date {
+  font-size:   12.5px;
+  font-weight: 600;
+  font-family: monospace;
+  flex-shrink: 0;
+}
+
+.lm-dl-row-actions {
+  display:     flex;
+  gap:         6px;
+  flex-shrink: 0;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── FILTER TABS ───────────────────────────────────────────
+function filterDeadlines(filter, btn) {
+  document.querySelectorAll(".lm-filter-tab")
+    .forEach(t => t.classList.remove("active"));
+  btn.classList.add("active");
+
+  const groups = document.querySelectorAll(".lm-dl-group");
+
+  if (filter === "all") {
+    groups.forEach(g => {
+      if (g.dataset.group !== "done") {
+        g.style.display = "block";
+      } else {
+        g.style.display = "none";
+      }
+    });
+  } else {
+    groups.forEach(g => {
+      g.style.display =
+        g.dataset.group === filter ? "block" : "none";
+    });
+  }
+}
+
+// ── MARK DONE ─────────────────────────────────────────────
+function markDone(id, btn) {
+  btn.disabled    = true;
+  btn.textContent = "...";
+
+  fetch(`/deadlines/${id}/done`, { method: "POST" })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        const row = btn.closest(".lm-dl-row");
+        row.style.opacity    = "0";
+        row.style.transition = "opacity 0.3s";
+        setTimeout(() => {
+          row.remove();
+          location.reload();
+        }, 300);
+      } else {
+        btn.disabled    = false;
+        btn.textContent = "Done";
+        alert("Error: " + data.message);
+      }
+    });
+}
+
+// ── DELETE DEADLINE ───────────────────────────────────────
+function deleteDeadline(id, btn) {
+  if (!confirm("Delete this deadline? This cannot be undone."))
+    return;
+
+  fetch(`/deadlines/${id}/delete`, { method: "POST" })
+    .then(r => {
+      if (r.ok || r.redirected) {
+        const row = btn.closest(".lm-dl-row");
+        row.style.opacity    = "0";
+        row.style.transition = "opacity 0.3s";
+        setTimeout(() => {
+          row.remove();
+          location.reload();
+        }, 300);
+      }
+    });
+}
+</script>
+{% endblock %} 
