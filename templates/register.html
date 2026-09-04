@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — LegalMind AI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="lm-auth-body">
+
+<div class="lm-auth-layout">
+
+  <!-- ── LEFT PANEL ──────────────────────────────────── -->
+  <div class="lm-auth-left">
+
+    <div class="lm-auth-brand">
+      <div class="brand-mark">
+        <i class="bi bi-layers-fill"></i>
+      </div>
+      <span class="brand-name">LegalMind <span>AI</span></span>
+    </div>
+
+    <div class="lm-auth-hero">
+      <div class="lm-auth-eyebrow">
+        <i class="bi bi-shield-check-fill"></i>
+        Bar Council Verification
+      </div>
+      <h1 class="lm-auth-heading">
+        Built for <em>advocates</em>, secured by Bar Council
+      </h1>
+      <p class="lm-auth-sub">
+        LegalMind AI is an advocate-only platform. We verify every
+        registration against Bar Council enrollment records to ensure
+        the highest standard of access and trust.
+      </p>
+    </div>
+
+    <div class="lm-feature-list">
+      <div class="lm-feature-item">
+        <div class="lm-feature-icon">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div>
+          <div class="lm-feature-title">Format Validation</div>
+          <div class="lm-feature-desc">
+            Enrollment number validated — e.g. MH/1234/2020
+          </div>
+        </div>
+      </div>
+      <div class="lm-feature-item">
+        <div class="lm-feature-icon">
+          <i class="bi bi-database-fill-check"></i>
+        </div>
+        <div>
+          <div class="lm-feature-title">Registry Cross-Check</div>
+          <div class="lm-feature-desc">
+            Name + enrollment + state verified against Bar Council records
+          </div>
+        </div>
+      </div>
+      <div class="lm-feature-item">
+        <div class="lm-feature-icon">
+          <i class="bi bi-patch-check-fill"></i>
+        </div>
+        <div>
+          <div class="lm-feature-title">Verified Badge</div>
+          <div class="lm-feature-desc">
+            Profile carries a permanent Bar Council verification badge
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enrollment Format Examples -->
+    <div class="lm-format-box">
+      <div class="lm-format-title">Enrollment Number Formats</div>
+      <div class="lm-format-row">
+        <span>Maharashtra</span>
+        <code>MH/1234/2020</code>
+      </div>
+      <div class="lm-format-row">
+        <span>Delhi</span>
+        <code>D/5678/2019</code>
+      </div>
+      <div class="lm-format-row">
+        <span>Karnataka</span>
+        <code>KAR/2341/2021</code>
+      </div>
+      <div class="lm-format-row">
+        <span>Tamil Nadu</span>
+        <code>TN/9812/2018</code>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── RIGHT PANEL ─────────────────────────────────── -->
+  <div class="lm-auth-right">
+    <div class="lm-form-box">
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="lm-alert lm-alert-{{ category }} mb-3">
+              <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'error' %}x-circle{% else %}info-circle{% endif %}-fill"></i>
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <div class="lm-form-header">
+        <h2 class="lm-form-title">Create your account</h2>
+        <p class="lm-form-subtitle">
+          Already registered?
+          <a href="{{ url_for('auth.login') }}">Sign in →</a>
+        </p>
+      </div>
+
+      <!-- Steps -->
+      <div class="lm-steps">
+        <div class="lm-step active" id="step1">
+          <div class="lm-step-num">1</div>
+          <div class="lm-step-label">Verification</div>
+        </div>
+        <div class="lm-step-line" id="line1"></div>
+        <div class="lm-step idle" id="step2">
+          <div class="lm-step-num">2</div>
+          <div class="lm-step-label">Account</div>
+        </div>
+        <div class="lm-step-line" id="line2"></div>
+        <div class="lm-step idle" id="step3">
+          <div class="lm-step-num">3</div>
+          <div class="lm-step-label">Done</div>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="lm-progress">
+        <div class="lm-progress-fill" id="progress" style="width:33%"></div>
+      </div>
+
+      <!-- ── SECTION 1: VERIFICATION ──────────────────── -->
+      <div id="section1">
+
+        <div class="lm-alert lm-alert-info mb-3">
+          <i class="bi bi-info-circle-fill"></i>
+          Enter your Bar Council details exactly as registered.
+        </div>
+
+        <!-- Full Name -->
+        <div class="lm-field">
+          <label class="lm-label">
+            Full name <span class="text-danger">*</span>
+          </label>
+          <div class="lm-input-wrap">
+            <i class="bi bi-person lm-input-icon"></i>
+            <input type="text"
+                   id="regName"
+                   class="lm-input"
+                   placeholder="Rajesh Kumar Sharma">
+          </div>
+        </div>
+
+        <!-- Enrollment Number -->
+        <div class="lm-field">
+          <label class="lm-label">
+            Bar Council enrollment number
+            <span class="text-danger">*</span>
+          </label>
+          <div class="lm-input-wrap">
+            <i class="bi bi-card-text lm-input-icon"></i>
+            <input type="text"
+                   id="regEnrollment"
+                   class="lm-input lm-mono"
+                   placeholder="MH/1234/2020"
+                   oninput="validateEnrollment(this)">
+          </div>
+          <div class="lm-format-badge mt-1">
+            FORMAT: STATE/NUMBER/YEAR
+          </div>
+          <div class="lm-field-error" id="enrollmentError">
+            <i class="bi bi-x-circle"></i>
+            Invalid format. Use STATE/NUMBER/YEAR
+          </div>
+          <div class="lm-field-success" id="enrollmentOk">
+            <i class="bi bi-check-circle"></i>
+            Format looks correct
+          </div>
+        </div>
+
+        <!-- State -->
+        <div class="lm-field">
+          <label class="lm-label">
+            State Bar Council <span class="text-danger">*</span>
+          </label>
+          <div class="lm-input-wrap">
+            <i class="bi bi-geo-alt lm-input-icon"></i>
+            <select id="regState" class="lm-input lm-select">
+              <option value="">Select state</option>
+              <option value="MH">Maharashtra</option>
+              <option value="D">Delhi</option>
+              <option value="KAR">Karnataka</option>
+              <option value="TN">Tamil Nadu</option>
+              <option value="UP">Uttar Pradesh</option>
+              <option value="GUJ">Gujarat</option>
+              <option value="WB">West Bengal</option>
+              <option value="RAJ">Rajasthan</option>
+              <option value="TS">Telangana</option>
+              <option value="KL">Kerala</option>
+              <option value="MP">Madhya Pradesh</option>
+              <option value="PB">Punjab</option>
+              <option value="HR">Haryana</option>
+              <option value="OR">Odisha</option>
+              <option value="AP">Andhra Pradesh</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Verify Status -->
+        <div class="lm-verify-status" id="verifyStatus"></div>
+
+        <button type="button"
+                class="lm-btn-primary w-100"
+                onclick="verifyEnrollment()">
+          <i class="bi bi-shield-check"></i>
+          Verify Bar Council Enrollment
+        </button>
+
+      </div>
+
+      <!-- ── SECTION 2: ACCOUNT SETUP ─────────────────── -->
+      <div id="section2" style="display:none">
+
+        <div class="lm-alert lm-alert-success mb-3">
+          <i class="bi bi-check-circle-fill"></i>
+          Enrollment verified! Complete your account setup.
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
+
+          <input type="hidden" name="full_name"     id="hiddenName">
+          <input type="hidden" name="enrollment_no" id="hiddenEnrollment">
+          <input type="hidden" name="state"         id="hiddenState">
+
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="lm-field">
+                <label class="lm-label">
+                  Email <span class="text-danger">*</span>
+                </label>
+                <div class="lm-input-wrap">
+                  <i class="bi bi-envelope lm-input-icon"></i>
+                  <input type="email"
+                         name="email"
+                         class="lm-input"
+                         placeholder="you@lawfirm.com"
+                         required>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="lm-field">
+                <label class="lm-label">Specialization</label>
+                <div class="lm-input-wrap">
+                  <i class="bi bi-briefcase lm-input-icon"></i>
+                  <select name="specialization" class="lm-input lm-select">
+                    <option value="">Select specialization</option>
+                    <option>Criminal Law</option>
+                    <option>Civil Law</option>
+                    <option>Corporate Law</option>
+                    <option>Family Law</option>
+                    <option>Constitutional Law</option>
+                    <option>Tax Law</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="lm-field">
+                <label class="lm-label">
+                  Password <span class="text-danger">*</span>
+                </label>
+                <div class="lm-input-wrap">
+                  <i class="bi bi-lock lm-input-icon"></i>
+                  <input type="password"
+                         name="password"
+                         id="regPw"
+                         class="lm-input"
+                         placeholder="Min. 8 characters"
+                         style="padding-right:42px"
+                         required>
+                  <button type="button"
+                          class="lm-pw-toggle"
+                          onclick="togglePw('regPw', this)">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="lm-field mb-0">
+                <label class="lm-label">
+                  Confirm password <span class="text-danger">*</span>
+                </label>
+                <div class="lm-input-wrap">
+                  <i class="bi bi-lock-fill lm-input-icon"></i>
+                  <input type="password"
+                         name="confirm_password"
+                         id="regPw2"
+                         class="lm-input"
+                         placeholder="Repeat password"
+                         style="padding-right:42px"
+                         required>
+                  <button type="button"
+                          class="lm-pw-toggle"
+                          onclick="togglePw('regPw2', this)">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lm-check-row mt-3">
+            <input type="checkbox"
+                   name="terms"
+                   id="terms"
+                   required>
+            <label for="terms" class="lm-check-label">
+              I agree to the Terms of Service and confirm I am a
+              registered advocate of the Bar Council of India.
+            </label>
+          </div>
+
+          <button type="submit" class="lm-btn-primary w-100 mt-3">
+            <i class="bi bi-check-circle"></i>
+            Create My Advocate Account
+          </button>
+
+        </form>
+
+        <div class="text-center mt-3">
+          <button onclick="goBack()"
+                  class="lm-back-btn">
+            ← Back to verification
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ── PASSWORD TOGGLE ─────────────────────────────────────
+function togglePw(id, btn) {
+  const inp  = document.getElementById(id);
+  const show = inp.type === "password";
+  inp.type   = show ? "text" : "password";
+  btn.innerHTML = show
+    ? '<i class="bi bi-eye-slash"></i>'
+    : '<i class="bi bi-eye"></i>';
+}
+
+// ── ENROLLMENT FORMAT VALIDATION ────────────────────────
+function validateEnrollment(inp) {
+  const val     = inp.value.trim().toUpperCase();
+  inp.value     = val;
+  const pattern = /^[A-Z]{1,4}\/\d{3,6}\/\d{4}$/;
+  const errEl   = document.getElementById("enrollmentError");
+  const okEl    = document.getElementById("enrollmentOk");
+
+  if (!val) {
+    inp.classList.remove("lm-input-error", "lm-input-success");
+    errEl.style.display = "none";
+    okEl.style.display  = "none";
+  } else if (pattern.test(val)) {
+    inp.classList.remove("lm-input-error");
+    inp.classList.add("lm-input-success");
+    errEl.style.display = "none";
+    okEl.style.display  = "flex";
+  } else {
+    inp.classList.remove("lm-input-success");
+    inp.classList.add("lm-input-error");
+    okEl.style.display  = "none";
+    errEl.style.display = "flex";
+  }
+}
+
+// ── VERIFY ENROLLMENT (AJAX) ────────────────────────────
+function verifyEnrollment() {
+  const name       = document.getElementById("regName").value.trim();
+  const enrollment = document.getElementById("regEnrollment").value.trim();
+  const state      = document.getElementById("regState").value;
+  const statusEl   = document.getElementById("verifyStatus");
+
+  if (!name || !enrollment || !state) {
+    statusEl.className   = "lm-verify-status lm-verify-error show";
+    statusEl.innerHTML   =
+      '<i class="bi bi-x-circle-fill"></i> Please fill in all fields.';
+    return;
+  }
+
+  // Show loading
+  statusEl.className = "lm-verify-status lm-verify-checking show";
+  statusEl.innerHTML =
+    '<div class="lm-spinner"></div> Checking Bar Council registry…';
+
+  fetch("{{ url_for('auth.verify_enrollment') }}", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ full_name: name, enrollment_no: enrollment, state })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      statusEl.className = "lm-verify-status lm-verify-success show";
+      statusEl.innerHTML =
+        `<i class="bi bi-check-circle-fill"></i> ${data.message}`;
+      setTimeout(() => goToStep2(name, enrollment, state), 800);
+    } else {
+      statusEl.className = "lm-verify-status lm-verify-error show";
+      statusEl.innerHTML =
+        `<i class="bi bi-x-circle-fill"></i> ${data.message}`;
+    }
+  })
+  .catch(() => {
+    statusEl.className = "lm-verify-status lm-verify-error show";
+    statusEl.innerHTML =
+      '<i class="bi bi-x-circle-fill"></i> Server error. Please try again.';
+  });
+}
+
+// ── GO TO STEP 2 ────────────────────────────────────────
+function goToStep2(name, enrollment, state) {
+  document.getElementById("hiddenName").value       = name;
+  document.getElementById("hiddenEnrollment").value = enrollment;
+  document.getElementById("hiddenState").value      = state;
+
+  document.getElementById("section1").style.display = "none";
+  document.getElementById("section2").style.display = "block";
+
+  document.getElementById("step1").className = "lm-step done";
+  document.getElementById("step2").className = "lm-step active";
+  document.getElementById("line1").className = "lm-step-line done";
+  document.getElementById("progress").style.width = "66%";
+}
+
+// ── GO BACK ─────────────────────────────────────────────
+function goBack() {
+  document.getElementById("section1").style.display = "block";
+  document.getElementById("section2").style.display = "none";
+  document.getElementById("step1").className = "lm-step active";
+  document.getElementById("step2").className = "lm-step idle";
+  document.getElementById("line1").className = "lm-step-line";
+  document.getElementById("progress").style.width = "33%";
+}
+</script>
+</body>
+</html>  

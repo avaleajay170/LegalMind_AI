@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% block title %}Legal Research — LegalMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- ── PAGE HEADER ──────────────────────────────────── -->
+  <div class="d-flex align-items-center gap-2 mb-1">
+    <div class="lm-section-bar"></div>
+    <h2 class="lm-section-title mb-0">Legal Research</h2>
+  </div>
+  <p class="text-muted mb-4" style="font-size:13.5px;margin-left:14px">
+    Search across IPC, CrPC, CPC, IT Act and more using
+    AI-powered retrieval. Get relevant sections, precedents
+    and strategic insights instantly.
+  </p>
+
+  <div class="row g-4">
+
+    <!-- ── LEFT: SEARCH ─────────────────────────────── -->
+    <div class="col-12 col-lg-4">
+      <div class="lm-panel">
+
+        <div class="lm-panel-head">
+          <i class="bi bi-search text-primary"></i>
+          Search Legal Database
+        </div>
+
+        <!-- Search Input -->
+        <div class="lm-field">
+          <label class="lm-label">
+            Your Research Query <span class="text-danger">*</span>
+          </label>
+          <textarea id="researchQuery"
+                    class="lm-input lm-textarea"
+                    rows="5"
+                    placeholder="Type your legal question…
+
+Examples:
+- What sections apply to online cheating?
+- Bail conditions under NDPS Act
+- Punishment for IPC Section 420
+- Rights of accused under CrPC"></textarea>
+        </div>
+
+        <!-- Quick Searches -->
+        <div class="lm-field">
+          <label class="lm-label">Quick Searches</label>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="lm-example-btn"
+                    onclick="setQuery('What are the sections for murder under IPC?')">
+              IPC Murder
+            </button>
+            <button class="lm-example-btn"
+                    onclick="setQuery('Bail provisions under CrPC for non-bailable offences')">
+              Bail Provisions
+            </button>
+            <button class="lm-example-btn"
+                    onclick="setQuery('Cybercrime sections under IT Act 2000')">
+              IT Act Cyber
+            </button>
+            <button class="lm-example-btn"
+                    onclick="setQuery('Cheating and fraud sections under IPC')">
+              Fraud Sections
+            </button>
+            <button class="lm-example-btn"
+                    onclick="setQuery('Rights of arrested person under CrPC Section 50')">
+              Arrested Rights
+            </button>
+            <button class="lm-example-btn"
+                    onclick="setQuery('Domestic violence provisions under IPC')">
+              Domestic Violence
+            </button>
+          </div>
+        </div>
+
+        <button class="lm-btn-primary w-100"
+                id="searchBtn"
+                onclick="doResearch()">
+          <i class="bi bi-search"></i>
+          Search Legal Database
+        </button>
+
+        <!-- Search History -->
+        <div class="mt-3" id="searchHistoryBox"
+             style="display:none">
+          <label class="lm-label">Recent Searches</label>
+          <div id="searchHistory"></div>
+        </div>
+
+      </div>
+
+      <!-- Legal DB Info -->
+      <div class="lm-panel mt-3">
+        <div class="lm-panel-head">
+          <i class="bi bi-database-fill text-success"></i>
+          Legal Database
+        </div>
+        <div class="d-flex flex-column gap-2">
+          <div class="d-flex align-items-center
+                      justify-content-between">
+            <span style="font-size:12.5px;color:var(--lm-text-2)">
+              <i class="bi bi-file-earmark-text-fill
+                         text-primary me-1"></i>
+              Indian Penal Code 1860
+            </span>
+            <span class="lm-pill lm-pill-active"
+                  style="font-size:10px">Indexed</span>
+          </div>
+          <div class="d-flex align-items-center
+                      justify-content-between">
+            <span style="font-size:12.5px;color:var(--lm-text-2)">
+              <i class="bi bi-file-earmark-text-fill
+                         text-primary me-1"></i>
+              CrPC 1973
+            </span>
+            <span class="lm-pill lm-pill-active"
+                  style="font-size:10px">Indexed</span>
+          </div>
+          <div class="d-flex align-items-center
+                      justify-content-between">
+            <span style="font-size:12.5px;color:var(--lm-text-2)">
+              <i class="bi bi-file-earmark-text-fill
+                         text-primary me-1"></i>
+              CPC 1908
+            </span>
+            <span class="lm-pill lm-pill-active"
+                  style="font-size:10px">Indexed</span>
+          </div>
+          <div class="d-flex align-items-center
+                      justify-content-between">
+            <span style="font-size:12.5px;color:var(--lm-text-2)">
+              <i class="bi bi-file-earmark-text-fill
+                         text-primary me-1"></i>
+              IT Act 2000
+            </span>
+            <span class="lm-pill lm-pill-active"
+                  style="font-size:10px">Indexed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: RESULTS ───────────────────────────── -->
+    <div class="col-12 col-lg-8">
+
+      <!-- Empty State -->
+      <div class="lm-panel lm-empty-state py-5" id="emptyState">
+        <i class="bi bi-search lm-empty-icon text-muted"></i>
+        <h5>Research results will appear here</h5>
+        <p class="text-muted">
+          Enter a legal question and click Search
+        </p>
+      </div>
+
+      <!-- Loading -->
+      <div class="lm-panel text-center py-5"
+           id="loadingState" style="display:none">
+        <div class="lm-spinner-lg mx-auto mb-3"></div>
+        <h5>Searching legal database...</h5>
+        <p class="text-muted">
+          Retrieving relevant sections and precedents
+        </p>
+      </div>
+
+      <!-- Results -->
+      <div id="resultsPanel" style="display:none">
+
+        <!-- Query Echo -->
+        <div class="lm-panel mb-3">
+          <div class="d-flex align-items-start
+                      justify-content-between gap-3">
+            <div>
+              <div class="lm-panel-head mb-1">
+                <i class="bi bi-chat-quote text-primary"></i>
+                Research Query
+              </div>
+              <p class="mb-0" id="queryEcho"
+                 style="font-size:13.5px;
+                        color:var(--lm-text-2);
+                        font-style:italic"></p>
+            </div>
+            <button class="lm-mini-btn flex-shrink-0"
+                    onclick="copyResult()">
+              <i class="bi bi-clipboard"></i> Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Response -->
+        <div class="lm-panel mb-3">
+          <div class="lm-panel-head">
+            <i class="bi bi-robot text-primary"></i>
+            AI Legal Analysis
+          </div>
+          <div id="aiResponse"
+               class="lm-research-response"></div>
+        </div>
+
+        <!-- Retrieved Context -->
+        <div class="lm-panel">
+          <div class="lm-panel-head">
+            <i class="bi bi-database text-success"></i>
+            Retrieved from Legal Database
+            <span class="ms-auto">
+              <button class="lm-mini-btn"
+                      onclick="toggleContext()">
+                <i class="bi bi-chevron-down"
+                   id="contextChevron"></i>
+                Show source
+              </button>
+            </span>
+          </div>
+          <div id="contextBox" style="display:none">
+            <pre id="contextText"
+                 class="lm-context-pre"></pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── SEARCH HISTORY ────────────────────────────────────────
+let searchHistory = JSON.parse(
+  localStorage.getItem("lm_search_history") || "[]"
+);
+
+function saveToHistory(query) {
+  searchHistory = [query,
+    ...searchHistory.filter(q => q !== query)
+  ].slice(0, 5);
+  localStorage.setItem(
+    "lm_search_history",
+    JSON.stringify(searchHistory)
+  );
+  renderHistory();
+}
+
+function renderHistory() {
+  if (searchHistory.length === 0) return;
+  const box = document.getElementById("searchHistoryBox");
+  const list = document.getElementById("searchHistory");
+  box.style.display = "block";
+  list.innerHTML = searchHistory.map(q => `
+    <div class="lm-history-item"
+         onclick="setQuery('${q.replace(/'/g, "\\'")}')">
+      <i class="bi bi-clock-history"></i>
+      ${q.length > 50 ? q.substring(0, 50) + "..." : q}
+    </div>`).join("");
+}
+
+renderHistory();
+
+// ── SET QUERY ─────────────────────────────────────────────
+function setQuery(text) {
+  document.getElementById("researchQuery").value = text;
+  document.getElementById("researchQuery").focus();
+}
+
+// ── DO RESEARCH ───────────────────────────────────────────
+function doResearch() {
+  const query = document.getElementById(
+    "researchQuery"
+  ).value.trim();
+  const btn   = document.getElementById("searchBtn");
+
+  if (!query) {
+    alert("Please enter a research query.");
+    return;
+  }
+
+  // Show loading
+  document.getElementById("emptyState").style.display   = "none";
+  document.getElementById("resultsPanel").style.display = "none";
+  document.getElementById("loadingState").style.display = "block";
+  btn.disabled  = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Searching...';
+
+  fetch("/ai/research", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ query })
+  })
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById("loadingState").style.display = "none";
+    btn.disabled  = false;
+    btn.innerHTML = '<i class="bi bi-search"></i> Search Legal Database';
+
+    if (data.success) {
+      saveToHistory(query);
+      renderResults(query, data);
+    } else {
+      alert("Error: " + data.message);
+      document.getElementById("emptyState").style.display = "block";
+    }
+  })
+  .catch(() => {
+    document.getElementById("loadingState").style.display = "none";
+    document.getElementById("emptyState").style.display   = "block";
+    btn.disabled  = false;
+    btn.innerHTML = '<i class="bi bi-search"></i> Search Legal Database';
+    alert("Server error. Please try again.");
+  });
+}
+
+// ── RENDER RESULTS ────────────────────────────────────────
+function renderResults(query, data) {
+  document.getElementById("resultsPanel").style.display = "block";
+  document.getElementById("queryEcho").textContent      = query;
+
+  // Format AI response
+  const response = data.response || "";
+  document.getElementById("aiResponse").innerHTML =
+    formatResponse(response);
+
+  // Retrieved context
+  document.getElementById("contextText").textContent =
+    data.context || "No context retrieved.";
+}
+
+// ── FORMAT RESPONSE ───────────────────────────────────────
+function formatResponse(text) {
+  if (!text) return "<p>No response available.</p>";
+
+  return text
+    // Bold text
+    .replace(/\*\*(.*?)\*\*/g,
+      '<strong>$1</strong>')
+    // Section numbers
+    .replace(/Section\s+(\d+[A-Z]?)/g,
+      '<span class="lm-section-ref">Section $1</span>')
+    // IPC references
+    .replace(/IPC\s+(\d+[A-Z]?)/g,
+      '<span class="lm-section-ref">IPC $1</span>')
+    // Numbered lists
+    .replace(/^\d+\.\s+/gm,
+      match => `<br><strong>${match}</strong>`)
+    // Line breaks
+    .replace(/\n/g, "<br>");
+}
+
+// ── TOGGLE CONTEXT ────────────────────────────────────────
+function toggleContext() {
+  const box      = document.getElementById("contextBox");
+  const chevron  = document.getElementById("contextChevron");
+  const isHidden = box.style.display === "none";
+
+  box.style.display    = isHidden ? "block" : "none";
+  chevron.className    = isHidden
+    ? "bi bi-chevron-up"
+    : "bi bi-chevron-down";
+}
+
+// ── COPY RESULT ───────────────────────────────────────────
+function copyResult() {
+  const text = document.getElementById(
+    "aiResponse"
+  ).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Research result copied to clipboard!");
+  });
+}
+
+// ── ENTER KEY SEARCH ──────────────────────────────────────
+document.getElementById("researchQuery")
+  .addEventListener("keydown", function (e) {
+    if (e.ctrlKey && e.key === "Enter") doResearch();
+  });
+</script>
+{% endblock %}

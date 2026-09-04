@@ -1,0 +1,507 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — LegalMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- ── WELCOME BANNER ─────────────────────────────── -->
+  <div class="lm-welcome-banner mb-4">
+    <div>
+      <h1 class="lm-welcome-title">
+        Good day, Advocate {{ session.lawyer_name.split()[0] }}
+      </h1>
+      <p class="lm-welcome-sub">
+        {{ stats.active_cases }} active cases &nbsp;·&nbsp;
+        {{ stats.upcoming_count }} upcoming deadlines &nbsp;·&nbsp;
+        {{ session.bar_council }}
+      </p>
+      <div class="d-flex gap-2 mt-2">
+        <span class="lm-chip">
+          <i class="bi bi-folder2-open"></i>
+          {{ stats.total_cases }} Total Cases
+        </span>
+        <span class="lm-chip">
+          <i class="bi bi-calendar-week"></i>
+          {{ stats.upcoming_count }} Deadlines
+        </span>
+        <span class="lm-chip">
+          <i class="bi bi-patch-check-fill"></i>
+          {{ session.enrollment_no }}
+        </span>
+      </div>
+    </div>
+    <div class="lm-welcome-date">
+      <div class="lm-welcome-date-num" id="currentDate"></div>
+      <div class="lm-welcome-date-label" id="currentDateLabel"></div>
+    </div>
+  </div>
+
+  <!-- ── STATS ROW ──────────────────────────────────── -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="lm-stat-card">
+        <div class="lm-stat-icon lm-stat-blue">
+          <i class="bi bi-folder2-open"></i>
+        </div>
+        <div>
+          <div class="lm-stat-num">{{ stats.total_cases }}</div>
+          <div class="lm-stat-lbl">Total Cases</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="lm-stat-card">
+        <div class="lm-stat-icon lm-stat-amber">
+          <i class="bi bi-calendar-week"></i>
+        </div>
+        <div>
+          <div class="lm-stat-num">{{ stats.upcoming_count }}</div>
+          <div class="lm-stat-lbl">Upcoming Deadlines</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="lm-stat-card">
+        <div class="lm-stat-icon lm-stat-red">
+          <i class="bi bi-graph-up-arrow"></i>
+        </div>
+        <div>
+          <div class="lm-stat-num">{{ stats.high_risk }}</div>
+          <div class="lm-stat-lbl">High Risk Cases</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="lm-stat-card">
+        <div class="lm-stat-icon lm-stat-green">
+          <i class="bi bi-check-circle"></i>
+        </div>
+        <div>
+          <div class="lm-stat-num">{{ stats.active_cases }}</div>
+          <div class="lm-stat-lbl">Active Cases</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── QUICK ACTIONS ──────────────────────────────── -->
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <div class="lm-section-bar"></div>
+        <h2 class="lm-section-title mb-0">Quick Actions</h2>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <a href="{{ url_for('cases.create_case') }}" class="lm-quick-card">
+        <div class="lm-quick-icon lm-qi-blue">
+          <i class="bi bi-plus-circle"></i>
+        </div>
+        <div class="lm-quick-lbl">New Case</div>
+        <div class="lm-quick-sub">Start fresh matter</div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <a href="{{ url_for('ai.suggest_sections_route') }}" class="lm-quick-card">
+        <div class="lm-quick-icon lm-qi-gold">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <div class="lm-quick-lbl">Section Finder</div>
+        <div class="lm-quick-sub">IPC / CrPC mapper</div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <a href="{{ url_for('ai.draft') }}" class="lm-quick-card">
+        <div class="lm-quick-icon lm-qi-purple">
+          <i class="bi bi-file-earmark-text"></i>
+        </div>
+        <div class="lm-quick-lbl">Draft Document</div>
+        <div class="lm-quick-sub">AI templates</div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <a href="{{ url_for('ai.research') }}" class="lm-quick-card">
+        <div class="lm-quick-icon lm-qi-green">
+          <i class="bi bi-search"></i>
+        </div>
+        <div class="lm-quick-lbl">Legal Research</div>
+        <div class="lm-quick-sub">Search precedents</div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <a href="{{ url_for('deadlines.all_deadlines') }}" class="lm-quick-card">
+        <div class="lm-quick-icon lm-qi-red">
+          <i class="bi bi-calendar-event"></i>
+        </div>
+        <div class="lm-quick-lbl">Deadlines</div>
+        <div class="lm-quick-sub">Calendar view</div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <a href="#uploadModal"
+         data-bs-toggle="modal"
+         class="lm-quick-card">
+        <div class="lm-quick-icon lm-qi-indigo">
+          <i class="bi bi-cloud-upload"></i>
+        </div>
+        <div class="lm-quick-lbl">Upload PDF</div>
+        <div class="lm-quick-sub">Extract & index</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── SECTION SUGGESTER BANNER ───────────────────── -->
+  <div class="lm-suggester-banner mb-4">
+    <div class="lm-suggester-icon">
+      <i class="bi bi-shield-fill"></i>
+    </div>
+    <div class="flex-grow-1">
+      <h5 class="lm-suggester-title mb-1">
+        Section Suggester — India's first AI-powered IPC section mapper
+      </h5>
+      <p class="lm-suggester-desc mb-0">
+        Describe any incident in plain language and instantly get
+        applicable IPC, CrPC, IT Act, POCSO sections with
+        bailable / non-bailable classification.
+      </p>
+    </div>
+    <a href="{{ url_for('ai.suggest_sections_route') }}"
+       class="lm-btn-primary text-decoration-none flex-shrink-0">
+      <i class="bi bi-arrow-right"></i> Try Now
+    </a>
+  </div>
+
+  <!-- ── ACTIVE CASES ────────────────────────────────── -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center gap-2">
+      <div class="lm-section-bar"></div>
+      <h2 class="lm-section-title mb-0">Active Cases</h2>
+    </div>
+    <a href="{{ url_for('cases.create_case') }}"
+       class="lm-btn-primary text-decoration-none">
+      <i class="bi bi-plus"></i> New Case
+    </a>
+  </div>
+
+  {% if cases %}
+  <div class="row g-3 mb-4">
+    {% for case in cases %}
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="lm-case-card
+        {% if case.risk_score >= 70 %}lm-risk-high
+        {% elif case.risk_score >= 40 %}lm-risk-mid
+        {% else %}lm-risk-low{% endif %}">
+
+        <div class="lm-case-top">
+          <div class="flex-grow-1 min-w-0">
+            <div class="lm-case-title">{{ case.title }}</div>
+            <div class="lm-case-sub">
+              {{ case.case_type }}
+              {% if case.court_name %}
+                · {{ case.court_name }}
+              {% endif %}
+            </div>
+          </div>
+          <span class="lm-pill
+            {% if case.status == 'active' %}lm-pill-active
+            {% elif case.status == 'pending' %}lm-pill-pending
+            {% else %}lm-pill-review{% endif %}">
+            {{ case.status | capitalize }}
+          </span>
+        </div>
+
+        <!-- Risk Score -->
+        <div class="lm-risk-block">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="lm-risk-lbl">Risk Score</span>
+            <span class="lm-risk-val">{{ case.risk_score }} / 100</span>
+          </div>
+          <div class="lm-risk-track">
+            <div class="lm-risk-fill
+              {% if case.risk_score >= 70 %}lm-rf-high
+              {% elif case.risk_score >= 40 %}lm-rf-mid
+              {% else %}lm-rf-low{% endif %}"
+              style="width: {{ case.risk_score }}%">
+            </div>
+          </div>
+        </div>
+
+        <div class="lm-case-foot">
+          <div>
+            <div class="lm-case-dl-lbl">
+              {% if case.next_deadline %}
+                Next deadline
+              {% else %}
+                No deadlines set
+              {% endif %}
+            </div>
+            {% if case.next_deadline %}
+            <div class="lm-dl-val
+              {% if case.next_deadline.urgency == 'red' %}lm-dl-urgent
+              {% elif case.next_deadline.urgency == 'amber' %}lm-dl-soon
+              {% else %}lm-dl-safe{% endif %}">
+              {{ case.next_deadline.title }}
+            </div>
+            {% endif %}
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('cases.case_detail', case_id=case._id) }}"
+               class="lm-mini-btn">Open</a>
+            <button class="lm-mini-btn"
+                    onclick="refreshRisk('{{ case._id }}', this)">
+              Risk
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="lm-empty-state mb-4">
+    <i class="bi bi-folder2 lm-empty-icon"></i>
+    <h4>No cases yet</h4>
+    <p>Create your first case to get started</p>
+    <a href="{{ url_for('cases.create_case') }}"
+       class="lm-btn-primary text-decoration-none">
+      <i class="bi bi-plus"></i> Create First Case
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- ── DEADLINES + CHAT ROW ───────────────────────── -->
+  <div class="row g-3">
+
+    <!-- Deadline Alerts -->
+    <div class="col-12 col-lg-6">
+      <div class="lm-panel">
+        <div class="lm-panel-head">
+          <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+          Deadline Alerts
+        </div>
+
+        {% if upcoming %}
+          {% for dl in upcoming %}
+          <div class="lm-dl-item lm-dl-{{ dl.urgency }}">
+            <div class="lm-dl-dot lm-dl-dot-{{ dl.urgency }}"></div>
+            <div class="flex-grow-1 min-w-0">
+              <div class="lm-dl-name">{{ dl.title }}</div>
+              <div class="lm-dl-sub">
+                Due: {{ dl.due_date }}
+              </div>
+            </div>
+            <span class="lm-dl-tag lm-dl-tag-{{ dl.urgency }}">
+              {% if dl.urgency == 'red' %}URGENT
+              {% elif dl.urgency == 'amber' %}SOON
+              {% else %}OK{% endif %}
+            </span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="lm-empty-state py-3">
+            <i class="bi bi-calendar-check lm-empty-icon"></i>
+            <p class="mb-0">No upcoming deadlines</p>
+          </div>
+        {% endif %}
+
+        <a href="{{ url_for('deadlines.all_deadlines') }}"
+           class="lm-btn-outline w-100 text-center text-decoration-none mt-3">
+          View Full Calendar
+        </a>
+      </div>
+    </div>
+
+    <!-- AI Assistant -->
+    <div class="col-12 col-lg-6">
+      <div class="lm-panel">
+        <div class="lm-panel-head">
+          <i class="bi bi-chat-dots-fill text-primary"></i>
+          AI Legal Assistant
+        </div>
+
+        <div class="lm-chat-msgs" id="dashChatBox">
+          <div class="lm-msg lm-msg-ai">
+            <div class="lm-msg-who">LegalMind AI</div>
+            <div class="lm-bubble lm-bubble-ai">
+              Good day, Advocate
+              {{ session.lawyer_name.split()[0] }}.
+              You have {{ stats.active_cases }} active case(s)
+              and {{ stats.upcoming_count }} upcoming deadline(s).
+              How can I help you today?
+            </div>
+          </div>
+        </div>
+
+        <div class="lm-chat-note mb-2">
+          <i class="bi bi-info-circle"></i>
+          For case-specific chat, open a case and use the chat there.
+        </div>
+
+        <div class="lm-chat-row">
+          <input type="text"
+                 id="dashChatIn"
+                 class="lm-chat-in"
+                 placeholder="Ask a general legal question…"
+                 onkeydown="if(event.key==='Enter') dashChat()">
+          <button class="lm-send-btn" onclick="dashChat()">
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── UPLOAD MODAL ───────────────────────────────────── -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content lm-modal">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-600">Upload Document</h5>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST"
+              action="{{ url_for('documents.upload_document') }}"
+              enctype="multipart/form-data">
+
+          <div class="lm-field">
+            <label class="lm-label">Select Case</label>
+            <select name="case_id" class="lm-input lm-select" required>
+              <option value="">Choose a case</option>
+              {% for case in cases %}
+              <option value="{{ case._id }}">{{ case.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="lm-upload-zone"
+               onclick="document.getElementById('fileInput').click()">
+            <input type="file"
+                   id="fileInput"
+                   name="file"
+                   style="display:none"
+                   accept=".pdf,.doc,.docx,.txt"
+                   onchange="showFileName(this)">
+            <i class="bi bi-cloud-upload lm-upload-icon"></i>
+            <div class="lm-upload-text">
+              Drop file here or click to browse
+            </div>
+            <div class="lm-upload-hint" id="fileNameDisplay">
+              PDF, DOCX, DOC, TXT — max 16MB
+            </div>
+          </div>
+
+          <button type="submit" class="lm-btn-primary w-100 mt-3">
+            <i class="bi bi-upload"></i> Upload & Process
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── SET DATE ─────────────────────────────────────────────
+const now = new Date();
+document.getElementById("currentDate").textContent =
+  now.getDate();
+document.getElementById("currentDateLabel").textContent =
+  now.toLocaleDateString("en-IN", { month: "long", year: "numeric", weekday: "long" });
+
+// ── DASHBOARD CHAT ────────────────────────────────────────
+function dashChat() {
+  const inp  = document.getElementById("dashChatIn");
+  const box  = document.getElementById("dashChatBox");
+  const text = inp.value.trim();
+  if (!text) return;
+
+  // User message
+  box.innerHTML += `
+    <div class="lm-msg lm-msg-user">
+      <div class="lm-msg-who">You</div>
+      <div class="lm-bubble lm-bubble-user">${text}</div>
+    </div>`;
+  inp.value = "";
+
+  // Typing indicator
+  box.innerHTML += `
+    <div class="lm-msg lm-msg-ai" id="typing">
+      <div class="lm-msg-who">LegalMind AI</div>
+      <div class="lm-bubble lm-bubble-ai">
+        <div class="lm-typing">
+          <div class="lm-tdot"></div>
+          <div class="lm-tdot"></div>
+          <div class="lm-tdot"></div>
+        </div>
+      </div>
+    </div>`;
+  box.scrollTop = box.scrollHeight;
+
+  // Call AI
+  fetch("/ai/chat", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ case_id: "general", message: text })
+  })
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById("typing")?.remove();
+    box.innerHTML += `
+      <div class="lm-msg lm-msg-ai">
+        <div class="lm-msg-who">LegalMind AI</div>
+        <div class="lm-bubble lm-bubble-ai">${data.response || data.message}</div>
+      </div>`;
+    box.scrollTop = box.scrollHeight;
+  })
+  .catch(() => {
+    document.getElementById("typing")?.remove();
+    box.innerHTML += `
+      <div class="lm-msg lm-msg-ai">
+        <div class="lm-msg-who">LegalMind AI</div>
+        <div class="lm-bubble lm-bubble-ai">
+          Sorry, AI service is temporarily unavailable.
+        </div>
+      </div>`;
+    box.scrollTop = box.scrollHeight;
+  });
+}
+
+// ── REFRESH RISK SCORE ────────────────────────────────────
+function refreshRisk(caseId, btn) {
+  btn.textContent = "...";
+  btn.disabled    = true;
+
+  fetch(`/ai/risk-score/${caseId}`)
+  .then(r => r.json())
+  .then(data => {
+    btn.textContent = "Risk";
+    btn.disabled    = false;
+    if (data.success) {
+      alert(`Risk Score: ${data.score}/100 (${data.level})\n\nFactors:\n${data.factors.join('\n')}\n\nRecommendation: ${data.recommendation}`);
+      location.reload();
+    }
+  })
+  .catch(() => {
+    btn.textContent = "Risk";
+    btn.disabled    = false;
+  });
+}
+
+// ── FILE NAME DISPLAY ─────────────────────────────────────
+function showFileName(input) {
+  const display = document.getElementById("fileNameDisplay");
+  if (input.files.length > 0) {
+    display.textContent = input.files[0].name;
+    display.style.color = "var(--lm-indigo)";
+  }
+}
+</script>
+{% endblock %} 
