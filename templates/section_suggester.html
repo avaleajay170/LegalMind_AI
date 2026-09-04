@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+{% block title %}Section Suggester — LegalMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- ── PAGE HEADER ──────────────────────────────────── -->
+  <div class="d-flex align-items-center gap-2 mb-1">
+    <div class="lm-section-bar"></div>
+    <h2 class="lm-section-title mb-0">Section Suggester</h2>
+    <span class="lm-pill lm-pill-active ms-2">
+      <i class="bi bi-stars"></i> Star Feature
+    </span>
+  </div>
+  <p class="text-muted mb-4" style="font-size:13.5px;margin-left:14px">
+    Describe any incident in plain language — get applicable IPC,
+    CrPC, IT Act, POCSO sections instantly with legal classification.
+  </p>
+
+  <div class="row g-4">
+
+    <!-- ── LEFT: INPUT FORM ──────────────────────────── -->
+    <div class="col-12 col-lg-5">
+      <div class="lm-panel">
+
+        <div class="lm-panel-head">
+          <i class="bi bi-pencil-square text-primary"></i>
+          Describe the Incident
+        </div>
+
+        <!-- Link to case (optional) -->
+        <div class="lm-field">
+          <label class="lm-label">
+            Link to Case
+            <span class="text-muted fw-400">(optional)</span>
+          </label>
+          <div class="lm-input-wrap">
+            <i class="bi bi-folder2-open lm-input-icon"></i>
+            <select id="caseSelect" class="lm-input lm-select">
+              <option value="">No case — standalone search</option>
+              {% for case in cases %}
+              <option value="{{ case._id }}">
+                {{ case.title }} — {{ case.client_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Incident description -->
+        <div class="lm-field">
+          <label class="lm-label">
+            Incident Description <span class="text-danger">*</span>
+          </label>
+          <textarea id="incidentText"
+                    class="lm-input lm-textarea"
+                    rows="8"
+                    placeholder="Describe the incident in detail…
+
+Example:
+A 45-year-old businessman was found dead in his office. His business partner is suspected. There are signs of poisoning. The deceased had recently changed his will in favor of his partner. CCTV footage shows the partner entering the office the previous night."></textarea>
+          <div class="d-flex justify-content-between mt-1">
+            <div class="lm-field-hint">
+              <i class="bi bi-info-circle"></i>
+              Include who, what, where, when and how
+            </div>
+            <div class="lm-char-count" id="charCount">0 / 2000</div>
+          </div>
+        </div>
+
+        <!-- Example incidents -->
+        <div class="lm-field">
+          <label class="lm-label">Try an Example</label>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="lm-example-btn"
+                    onclick="loadExample('murder')">
+              Murder Case
+            </button>
+            <button class="lm-example-btn"
+                    onclick="loadExample('cyber')">
+              Cybercrime
+            </button>
+            <button class="lm-example-btn"
+                    onclick="loadExample('fraud')">
+              Financial Fraud
+            </button>
+            <button class="lm-example-btn"
+                    onclick="loadExample('domestic')">
+              Domestic Violence
+            </button>
+          </div>
+        </div>
+
+        <button class="lm-btn-primary w-100 mt-2"
+                id="suggestBtn"
+                onclick="suggestSections()">
+          <i class="bi bi-shield-check"></i>
+          Identify Applicable Sections
+        </button>
+
+      </div>
+    </div>
+
+    <!-- ── RIGHT: RESULTS ──────────────────────────── -->
+    <div class="col-12 col-lg-7">
+
+      <!-- Empty State -->
+      <div class="lm-panel lm-empty-state py-5" id="emptyState">
+        <i class="bi bi-shield-fill lm-empty-icon text-muted"></i>
+        <h5>Sections will appear here</h5>
+        <p class="text-muted">
+          Describe an incident on the left and click
+          "Identify Applicable Sections"
+        </p>
+      </div>
+
+      <!-- Loading State -->
+      <div class="lm-panel text-center py-5" id="loadingState"
+           style="display:none">
+        <div class="lm-spinner-lg mx-auto mb-3"></div>
+        <h5>Analysing incident...</h5>
+        <p class="text-muted">
+          Gemini AI is mapping your incident to Indian law sections
+        </p>
+      </div>
+
+      <!-- Results -->
+      <div id="resultsPanel" style="display:none">
+
+        <!-- Summary -->
+        <div class="lm-panel mb-3" id="summaryCard">
+          <div class="lm-panel-head">
+            <i class="bi bi-card-text text-primary"></i>
+            Legal Summary
+          </div>
+          <p class="mb-0" id="summaryText"
+             style="font-size:13.5px;color:var(--lm-text-2)"></p>
+        </div>
+
+        <!-- Classification Flags -->
+        <div class="lm-panel mb-3">
+          <div class="lm-panel-head">
+            <i class="bi bi-flag-fill text-warning"></i>
+            Case Classification
+          </div>
+          <div class="d-flex flex-wrap gap-2" id="flagsRow"></div>
+        </div>
+
+        <!-- Primary Sections -->
+        <div class="lm-panel mb-3">
+          <div class="lm-panel-head">
+            <i class="bi bi-exclamation-circle-fill text-danger"></i>
+            Primary Sections
+            <span class="lm-badge-count" id="primaryCount">0</span>
+          </div>
+          <div id="primarySections"></div>
+        </div>
+
+        <!-- Supporting Sections -->
+        <div class="lm-panel mb-3">
+          <div class="lm-panel-head">
+            <i class="bi bi-plus-circle-fill text-warning"></i>
+            Supporting Sections
+            <span class="lm-badge-count" id="supportingCount">0</span>
+          </div>
+          <div id="supportingSections"></div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="lm-panel">
+          <div class="lm-panel-head">
+            <i class="bi bi-list-check text-success"></i>
+            Recommended Next Steps
+          </div>
+          <ol class="lm-steps-list" id="nextSteps"></ol>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── EXAMPLE INCIDENTS ─────────────────────────────────────
+const examples = {
+  murder: `A 45-year-old businessman was found dead in his office. His business partner is suspected. There are signs of poisoning. The deceased had recently changed his will in favor of his partner. CCTV footage shows the partner entering the office the previous night. The family believes it was a planned murder for financial gain.`,
+
+  cyber: `A woman received threatening messages and morphed intimate images of herself on social media. The accused created a fake profile using her photos and shared them with her colleagues. The accused is her ex-boyfriend who obtained the images during their relationship. He is also demanding money threatening to release more images publicly.`,
+
+  fraud: `A bank manager colluded with an outsider to sanction loans worth 50 crores to fictitious companies. Forged documents were used to obtain the loans. The money was transferred to multiple shell companies and then withdrawn as cash. The fraud was discovered during an internal audit. Multiple bank employees are suspected to be involved.`,
+
+  domestic: `A married woman has been subjected to physical and mental torture by her husband and in-laws for not bringing sufficient dowry. She was beaten regularly and denied food. Her in-laws demanded a car and 10 lakhs in cash. Last week she was pushed down the stairs and suffered fractures. She has managed to escape to her parents house and wants to file a complaint.`
+};
+
+function loadExample(type) {
+  const textarea = document.getElementById("incidentText");
+  textarea.value = examples[type];
+  updateCharCount();
+}
+
+// ── CHAR COUNT ────────────────────────────────────────────
+const textarea  = document.getElementById("incidentText");
+const charCount = document.getElementById("charCount");
+
+textarea.addEventListener("input", updateCharCount);
+
+function updateCharCount() {
+  const len = textarea.value.length;
+  charCount.textContent = `${len} / 2000`;
+  charCount.style.color = len > 1800 ? "var(--lm-red)" : "var(--lm-text-3)";
+  if (len > 2000) textarea.value = textarea.value.substring(0, 2000);
+}
+
+// ── SUGGEST SECTIONS ──────────────────────────────────────
+function suggestSections() {
+  const text   = document.getElementById("incidentText").value.trim();
+  const caseId = document.getElementById("caseSelect").value;
+  const btn    = document.getElementById("suggestBtn");
+
+  if (!text || text.length < 20) {
+    alert("Please provide a detailed incident description (at least 20 characters).");
+    return;
+  }
+
+  // Show loading
+  document.getElementById("emptyState").style.display   = "none";
+  document.getElementById("resultsPanel").style.display = "none";
+  document.getElementById("loadingState").style.display = "block";
+  btn.disabled    = true;
+  btn.innerHTML   = '<i class="bi bi-hourglass-split"></i> Analysing...';
+
+  fetch("/ai/suggest-sections", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ incident_text: text, case_id: caseId })
+  })
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById("loadingState").style.display = "none";
+    btn.disabled  = false;
+    btn.innerHTML = '<i class="bi bi-shield-check"></i> Identify Applicable Sections';
+
+    if (data.success) {
+      renderResults(data.data);
+    } else {
+      alert("Error: " + data.message);
+      document.getElementById("emptyState").style.display = "block";
+    }
+  })
+  .catch(err => {
+    document.getElementById("loadingState").style.display = "none";
+    document.getElementById("emptyState").style.display   = "block";
+    btn.disabled  = false;
+    btn.innerHTML = '<i class="bi bi-shield-check"></i> Identify Applicable Sections';
+    alert("Server error. Please try again.");
+  });
+}
+
+// ── RENDER RESULTS ────────────────────────────────────────
+function renderResults(data) {
+  document.getElementById("resultsPanel").style.display = "block";
+
+  // Summary
+  document.getElementById("summaryText").textContent =
+    data.summary || "Legal analysis complete.";
+
+  // Flags
+  const flagsRow = document.getElementById("flagsRow");
+  const bailable = data.bailable;
+  const cognizable = data.cognizable;
+  flagsRow.innerHTML = `
+    <span class="lm-flag-badge ${bailable ? 'lm-flag-green' : 'lm-flag-red'}">
+      <i class="bi bi-${bailable ? 'unlock' : 'lock'}-fill"></i>
+      ${bailable ? 'Bailable' : 'Non-Bailable'}
+    </span>
+    <span class="lm-flag-badge ${cognizable ? 'lm-flag-blue' : 'lm-flag-amber'}">
+      <i class="bi bi-shield-fill"></i>
+      ${cognizable ? 'Cognizable' : 'Non-Cognizable'}
+    </span>
+    <span class="lm-flag-badge lm-flag-purple">
+      <i class="bi bi-building"></i>
+      ${data.court || 'Court TBD'}
+    </span>
+    <span class="lm-flag-badge lm-flag-indigo">
+      <i class="bi bi-file-earmark-text"></i>
+      ${data.fir_type || 'Regular FIR'}
+    </span>`;
+
+  // Primary Sections
+  const primary = data.primary_sections || [];
+  document.getElementById("primaryCount").textContent = primary.length;
+  document.getElementById("primarySections").innerHTML =
+    primary.length === 0
+      ? '<p class="text-muted">No primary sections identified.</p>'
+      : primary.map(s => renderSectionCard(s, "danger")).join("");
+
+  // Supporting Sections
+  const supporting = data.supporting_sections || [];
+  document.getElementById("supportingCount").textContent = supporting.length;
+  document.getElementById("supportingSections").innerHTML =
+    supporting.length === 0
+      ? '<p class="text-muted">No supporting sections identified.</p>'
+      : supporting.map(s => renderSectionCard(s, "warning")).join("");
+
+  // Next Steps
+  const steps = data.next_steps || [];
+  document.getElementById("nextSteps").innerHTML =
+    steps.length === 0
+      ? '<li class="text-muted">No steps available.</li>'
+      : steps.map(step => `<li class="lm-step-item">${step}</li>`).join("");
+}
+
+// ── RENDER SECTION CARD ───────────────────────────────────
+function renderSectionCard(section, type) {
+  const colors = {
+    danger:  { bg: "#FEF2F2", border: "#FECACA", text: "#DC2626" },
+    warning: { bg: "#FFFBEB", border: "#FDE68A", text: "#D97706" }
+  };
+  const c = colors[type];
+  return `
+    <div class="lm-section-card" style="
+      background:${c.bg};
+      border-left: 4px solid ${c.text};
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 10px;">
+      <div class="d-flex align-items-start gap-3">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:${c.text};
+                      font-family:monospace;margin-bottom:3px">
+            ${section.act} § ${section.section}
+          </div>
+          <div style="font-size:13px;font-weight:600;color:#111827;
+                      margin-bottom:4px">
+            ${section.title}
+          </div>
+          <div style="font-size:12px;color:#6B7280;margin-bottom:4px">
+            <i class="bi bi-clock"></i>
+            ${section.punishment || 'Refer to Act'}
+          </div>
+          <div style="font-size:12px;color:#374151">
+            ${section.reason}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+</script>
+{% endblock %} 
