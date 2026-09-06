@@ -51,8 +51,8 @@
   --lm-radius:    10px;
   --lm-radius-lg: 14px;
 
-  --lm-font:      'Inter', system-ui, sans-serif;
-  --lm-serif:     'Instrument Serif', Georgia, serif;
+  --lm-font:  'Inter', system-ui, sans-serif;
+  --lm-serif: 'Inter', system-ui, sans-serif;
 }
 
 /* ── BASE ─────────────────────────────────────────────── */
@@ -1690,4 +1690,250 @@ body {
   }
 
   .lm-welcome-date { text-align: left; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   MONGODB ATLAS STYLE TYPOGRAPHY UPGRADE
+═══════════════════════════════════════════════════════ */
+
+/* ── GLOBAL FONT RESET ─────────────────────────────── */
+* {
+  font-family:   'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing:  antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── BODY ───────────────────────────────────────────── */
+body {
+  font-size:      13.5px;
+  font-weight:    400;
+  letter-spacing: -0.01em;
+  line-height:    1.55;
+  color:          #1C2D3A;
+}
+
+/* ── HEADINGS ───────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6,
+.lm-section-title,
+.lm-case-title,
+.lm-panel-head,
+.lm-stat-num,
+.lm-form-title,
+.lm-welcome-title,
+.lm-case-header-title {
+  font-family:    'Inter', system-ui, sans-serif !important;
+  letter-spacing: -0.03em !important;
+  font-weight:    700 !important;
+}
+
+/* ── NAVBAR BRAND ───────────────────────────────────── */
+.brand-name {
+  font-size:      15px;
+  font-weight:    700;
+  letter-spacing: -0.04em;
+  color:          #1C2D3A;
+}
+
+.brand-name span { color: var(--lm-indigo); }
+
+/* ── NAV LINKS ──────────────────────────────────────── */
+.lm-nav-link {
+  font-size:      13px;
+  font-weight:    500;
+  letter-spacing: -0.01em;
+}
+
+/* ── WELCOME BANNER ─────────────────────────────────── */
+.lm-welcome-title {
+  font-size:      18px !important;
+  font-weight:    700 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.lm-welcome-sub {
+  font-size:   13px;
+  font-weight: 400;
+  opacity:     0.82;
+}
+
+/* ── STAT CARDS ─────────────────────────────────────── */
+.lm-stat-num {
+  font-size:      28px !important;
+  font-weight:    700 !important;
+  letter-spacing: -0.04em !important;
+  line-height:    1.1 !important;
+}
+
+.lm-stat-lbl {
+  font-size:      11.5px;
+  font-weight:    500;
+  color:          #5C7080;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-top:     4px;
+}
+
+/* ── SECTION TITLE ──────────────────────────────────── */
+.lm-section-title {
+  font-size:      14px !important;
+  font-weight:    700 !important;
+  letter-spacing: -0.02em !important;
+  color:          #1C2D3A !important;
+}
+
+/* ── PANEL HEAD ─────────────────────────────────────── */
+.lm-panel-head {
+  font-size:      13.5px !important;
+  font-weight:    600 !important;
+  letter-spacing: -0.02em !important;
+  color:          #1C2D3A !important;
+}
+
+/* ── CASE TITLE ─────────────────────────────────────── */
+.lm-case-title {
+  font-size:      14px !important;
+  font-weight:    600 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* ── QUICK CARDS ────────────────────────────────────── */
+.lm-quick-lbl {
+  font-size:      12.5px;
+  font-weight:    600;
+  letter-spacing: -0.02em;
+  color:          #1C2D3A;
+}
+
+.lm-quick-sub {
+  font-size:   11px;
+  font-weight: 400;
+  color:       #5C7080;
+}
+
+/* ── BUTTONS ────────────────────────────────────────── */
+.lm-btn-primary,
+.lm-btn-outline {
+  font-size:      13px;
+  font-weight:    600;
+  letter-spacing: -0.01em;
+}
+
+/* ── FORM LABELS ────────────────────────────────────── */
+.lm-label {
+  font-size:      12.5px;
+  font-weight:    600;
+  letter-spacing: -0.01em;
+  color:          #1C2D3A;
+}
+
+/* ── INPUTS ─────────────────────────────────────────── */
+.lm-input {
+  font-size:      13px;
+  font-weight:    400;
+  letter-spacing: -0.01em;
+}
+
+/* ── PILLS ──────────────────────────────────────────── */
+.lm-pill {
+  font-size:      11px;
+  font-weight:    600;
+  letter-spacing: 0.01em;
+}
+
+/* ── CHAT BUBBLES ───────────────────────────────────── */
+.lm-bubble {
+  font-size:      13px;
+  font-weight:    400;
+  letter-spacing: -0.01em;
+}
+
+/* ── DEADLINE ITEMS ─────────────────────────────────── */
+.lm-dl-name {
+  font-size:      13px;
+  font-weight:    600;
+  letter-spacing: -0.01em;
+}
+
+.lm-dl-sub {
+  font-size:  11.5px;
+  font-weight: 400;
+  color:      #5C7080;
+}
+
+/* ── FOOTER ─────────────────────────────────────────── */
+.lm-footer {
+  font-size:   12px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color:       #7B8FA6;
+}
+
+/* ── MINI BTN ───────────────────────────────────────── */
+.lm-mini-btn {
+  font-size:      12px;
+  font-weight:    500;
+  letter-spacing: -0.01em;
+}
+
+/* ── ATLAS-STYLE SECTION BAR ────────────────────────── */
+.lm-section-bar {
+  width:      3px;
+  height:     16px;
+  background: var(--lm-indigo);
+  border-radius: 2px;
+}
+
+/* ── CARD HOVER REFINEMENT ──────────────────────────── */
+.lm-stat-card,
+.lm-case-card,
+.lm-quick-card,
+.lm-panel {
+  border-radius: 8px !important;
+}
+
+/* ── SUGGESTER BANNER ───────────────────────────────── */
+.lm-suggester-title {
+  font-size:      14px;
+  font-weight:    600;
+  letter-spacing: -0.02em;
+}
+
+.lm-suggester-desc {
+  font-size:   12.5px;
+  font-weight: 400;
+  color:       #5C7080;
+}
+
+/* ── TEXT COLOR UPDATE ──────────────────────────────── */
+:root {
+  --lm-text:   #1C2D3A;
+  --lm-text-2: #3D535F;
+  --lm-text-3: #5C7080;
+  --lm-text-4: #8FAAB8;
+}
+
+/* ── CHIP STYLE ─────────────────────────────────────── */
+.lm-chip {
+  font-size:   11.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* ── BREADCRUMB ─────────────────────────────────────── */
+.lm-breadcrumb {
+  font-size:   12.5px;
+  font-weight: 500;
+}
+
+/* ── ALERT TEXT ─────────────────────────────────────── */
+.lm-alert {
+  font-size:   13px;
+  font-weight: 400;
+}
+
+/* ── VERIFIED BADGE ─────────────────────────────────── */
+.lm-verified-badge {
+  font-size:      11px;
+  font-weight:    600;
+  letter-spacing: 0.02em;
 }
