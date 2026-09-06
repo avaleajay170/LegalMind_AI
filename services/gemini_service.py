@@ -1,14 +1,13 @@
-import google.generativeai as genai
+from google import genai
 from config import Config
 
-# ── CONFIGURE GEMINI ─────────────────────────────────────
-genai.configure(api_key=Config.GEMINI_API_KEY)
-
+# ── CONFIGURE GEMINI CLIENT ───────────────────────────────
+client = genai.Client(api_key=Config.GEMINI_API_KEY)
 
 # ── SYSTEM PROMPTS ────────────────────────────────────────
 PROMPTS = {
 
-    "chat": """You are LegalMind AI, an expert legal assistant 
+    "chat": """You are LegalMind AI, an expert legal assistant
 specializing in Indian law. You are assisting a verified advocate.
 
 CASE CONTEXT:
@@ -23,7 +22,7 @@ INSTRUCTIONS:
 - Never make up facts — if unsure, say so""",
 
 
-    "research": """You are a legal research assistant specializing 
+    "research": """You are a legal research assistant specializing
 in Indian law including IPC, CrPC, CPC, IBC, IT Act, POCSO and more.
 
 RETRIEVED LEGAL CONTEXT:
@@ -40,7 +39,7 @@ INSTRUCTIONS:
 - Be precise and cite sources""",
 
 
-    "draft": """You are an expert legal document drafter for 
+    "draft": """You are an expert legal document drafter for
 Indian courts and legal proceedings.
 
 CASE DETAILS:
@@ -55,7 +54,7 @@ INSTRUCTIONS:
 - Include placeholders like [DATE], [COURT NAME] where needed""",
 
 
-    "risk": """You are a legal risk assessment expert specializing 
+    "risk": """You are a legal risk assessment expert specializing
 in Indian law and litigation.
 
 CASE DETAILS:
@@ -70,7 +69,12 @@ INSTRUCTIONS:
   "score": <number 0-100>,
   "level": "<Low|Medium|High|Critical>",
   "factors": ["<factor 1>", "<factor 2>", "<factor 3>"],
-  "recommendation": "<one clear action to take>"
+  "recommendation": "<one clear action to take right now>",
+  "breakdown": {{
+    "deadline_risk"  : <0-40>,
+    "document_risk"  : <0-30>,
+    "case_complexity": <0-30>
+  }}
 }}"""
 }
 
@@ -90,34 +94,43 @@ def ask_gemini(message, case_context="", history=[], mode="chat"):
         str — Gemini's response
     """
     try:
-        model = genai.GenerativeModel(Config.GEMINI_MODEL)
-
         # Build system prompt with context
         system_prompt = PROMPTS.get(mode, PROMPTS["chat"]).format(
             case_context=case_context
         )
 
-        # Build conversation history
-        gemini_history = []
-        for h in history:
-            role    = "user"  if h["role"] == "user"      else "model"
-            gemini_history.append({
-                "role":  role,
-                "parts": [h["content"]]
-            })
-
-        # Start chat with history
-        chat = model.start_chat(history=gemini_history)
-
-        # Full message = system prompt + user message
+        # Build full message
         full_message = f"{system_prompt}\n\nUser Query: {message}"
 
-        response = chat.send_message(full_message)
+        # Build contents with history
+        contents = []
+        for h in history:
+            role = "user" if h["role"] == "user" else "model"
+            contents.append(
+                genai.types.Content(
+                    role  = role,
+                    parts = [genai.types.Part(text=h["content"])]
+                )
+            )
+
+        # Add current message
+        contents.append(
+            genai.types.Content(
+                role  = "user",
+                parts = [genai.types.Part(text=full_message)]
+            )
+        )
+
+        response = client.models.generate_content(
+            model    = Config.GEMINI_MODEL,
+            contents = contents
+        )
+
         return response.text
 
     except Exception as e:
         print(f"❌ Gemini API error: {e}")
-        return f"AI service temporarily unavailable. Please try again. Error: {str(e)}"
+        return f"AI service temporarily unavailable. Please try again."
 
 
 # ── SIMPLE ONE-SHOT GEMINI CALL ───────────────────────────
@@ -133,11 +146,12 @@ def ask_gemini_once(prompt):
         str — Gemini's response
     """
     try:
-        model    = genai.GenerativeModel(Config.GEMINI_MODEL)
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model    = Config.GEMINI_MODEL,
+            contents = prompt
+        )
         return response.text
 
     except Exception as e:
         print(f"❌ Gemini API error: {e}")
         return None
-     
