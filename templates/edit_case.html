@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Edit Case — LegalMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb lm-breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('cases.dashboard') }}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('cases.case_detail',
+                            case_id=case._id) }}">
+          {{ case.title }}
+        </a>
+      </li>
+      <li class="breadcrumb-item active">Edit</li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <div class="lm-panel">
+
+        <div class="lm-panel-head">
+          <i class="bi bi-pencil-square text-primary"></i>
+          Edit Case
+        </div>
+
+        <form method="POST"
+              action="{{ url_for('cases.edit_case',
+                                  case_id=case._id) }}"
+              novalidate>
+
+          <div class="lm-field">
+            <label class="lm-label">
+              Case Title <span class="text-danger">*</span>
+            </label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-briefcase lm-input-icon"></i>
+              <input type="text"
+                     name="title"
+                     class="lm-input"
+                     value="{{ case.title }}"
+                     required>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <div class="lm-field">
+                <label class="lm-label">Case Type</label>
+                <div class="lm-input-wrap">
+                  <i class="bi bi-tag lm-input-icon"></i>
+                  <select name="case_type"
+                          class="lm-input lm-select">
+                    {% for t in ['Criminal','Civil','Family',
+                       'Corporate','Constitutional','Tax',
+                       'Labour','Property','Cyber','Other'] %}
+                    <option value="{{ t }}"
+                      {% if case.case_type == t %}selected{% endif %}>
+                      {{ t }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="lm-field">
+                <label class="lm-label">Status</label>
+                <div class="lm-input-wrap">
+                  <i class="bi bi-flag lm-input-icon"></i>
+                  <select name="status"
+                          class="lm-input lm-select">
+                    {% for s in ['active','pending','review','closed'] %}
+                    <option value="{{ s }}"
+                      {% if case.status == s %}selected{% endif %}>
+                      {{ s | capitalize }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lm-field">
+            <label class="lm-label">Court Name</label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-building lm-input-icon"></i>
+              <input type="text"
+                     name="court_name"
+                     class="lm-input"
+                     value="{{ case.court_name or '' }}">
+            </div>
+          </div>
+
+          <div class="lm-field">
+            <label class="lm-label">Client Name</label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-person lm-input-icon"></i>
+              <input type="text"
+                     name="client_name"
+                     class="lm-input"
+                     value="{{ case.client_name }}">
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <div class="lm-field">
+                <label class="lm-label">Client Phone</label>
+                <div class="lm-input-wrap">
+                  <i class="bi bi-telephone lm-input-icon"></i>
+                  <input type="text"
+                         name="client_phone"
+                         class="lm-input"
+                         value="{{ case.client_phone or '' }}">
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="lm-field">
+                <label class="lm-label">Client Email</label>
+                <div class="lm-input-wrap">
+                  <i class="bi bi-envelope lm-input-icon"></i>
+                  <input type="email"
+                         name="client_email"
+                         class="lm-input"
+                         value="{{ case.client_email or '' }}">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lm-field">
+            <label class="lm-label">Description</label>
+            <textarea name="description"
+                      class="lm-input lm-textarea"
+                      rows="5">{{ case.description or '' }}</textarea>
+          </div>
+
+          <div class="d-flex gap-3 mt-2">
+            <button type="submit"
+                    class="lm-btn-primary flex-grow-1">
+              <i class="bi bi-check2"></i> Save Changes
+            </button>
+            <a href="{{ url_for('cases.case_detail',
+                                case_id=case._id) }}"
+               class="lm-btn-outline text-decoration-none">
+              Cancel
+            </a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block title %}New Case — LegalMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- ── BREADCRUMB ───────────────────────────────────── -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb lm-breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('cases.dashboard') }}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active">New Case</li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+
+      <div class="lm-panel">
+
+        <div class="lm-panel-head">
+          <i class="bi bi-folder-plus text-primary"></i>
+          Create New Case
+        </div>
+
+        <form method="POST"
+              action="{{ url_for('cases.create_case') }}"
+              novalidate>
+
+          <!-- Case Title -->
+          <div class="lm-field">
+            <label class="lm-label">
+              Case Title <span class="text-danger">*</span>
+            </label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-briefcase lm-input-icon"></i>
+              <input type="text"
+                     name="title"
+                     class="lm-input"
+                     placeholder="e.g. Amit Verma vs. State of Maharashtra"
+                     required>
+            </div>
+          </div>
+
+          <!-- Case Type -->
+          <div class="lm-field">
+            <label class="lm-label">
+              Case Type <span class="text-danger">*</span>
+            </label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-tag lm-input-icon"></i>
+              <select name="case_type"
+                      class="lm-input lm-select"
+                      required>
+                <option value="">Select case type</option>
+                <option value="Criminal">Criminal</option>
+                <option value="Civil">Civil</option>
+                <option value="Family">Family</option>
+                <option value="Corporate">Corporate</option>
+                <option value="Constitutional">Constitutional</option>
+                <option value="Tax">Tax</option>
+                <option value="Labour">Labour</option>
+                <option value="Property">Property</option>
+                <option value="Cyber">Cyber Crime</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Court Name -->
+          <div class="lm-field">
+            <label class="lm-label">Court Name</label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-building lm-input-icon"></i>
+              <input type="text"
+                     name="court_name"
+                     class="lm-input"
+                     placeholder="e.g. Sessions Court Mumbai, High Court Delhi">
+            </div>
+          </div>
+
+          <hr class="my-3" style="border-color:var(--lm-border)">
+
+          <div class="lm-panel-head mb-3">
+            <i class="bi bi-person text-primary"></i>
+            Client Information
+          </div>
+
+          <!-- Client Name -->
+          <div class="lm-field">
+            <label class="lm-label">
+              Client Name <span class="text-danger">*</span>
+            </label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-person lm-input-icon"></i>
+              <input type="text"
+                     name="client_name"
+                     class="lm-input"
+                     placeholder="Full name of client"
+                     required>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <!-- Client Phone -->
+            <div class="col-12 col-md-6">
+              <div class="lm-field">
+                <label class="lm-label">Client Phone</label>
+                <div class="lm-input-wrap">
+                  <i class="bi bi-telephone lm-input-icon"></i>
+                  <input type="text"
+                         name="client_phone"
+                         class="lm-input"
+                         placeholder="+91 98765 43210">
+                </div>
+              </div>
+            </div>
+
+            <!-- Client Email -->
+            <div class="col-12 col-md-6">
+              <div class="lm-field">
+                <label class="lm-label">Client Email</label>
+                <div class="lm-input-wrap">
+                  <i class="bi bi-envelope lm-input-icon"></i>
+                  <input type="email"
+                         name="client_email"
+                         class="lm-input"
+                         placeholder="client@email.com">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-3" style="border-color:var(--lm-border)">
+
+          <!-- Case Description -->
+          <div class="lm-field">
+            <label class="lm-label">
+              Case Description
+              <span class="lm-field-hint ms-2">
+                (More detail = better AI responses)
+              </span>
+            </label>
+            <textarea name="description"
+                      class="lm-input lm-textarea"
+                      rows="5"
+                      placeholder="Describe the case in detail — facts, background, key issues, parties involved, relevant dates..."></textarea>
+          </div>
+
+          <!-- Buttons -->
+          <div class="d-flex gap-3 mt-2">
+            <button type="submit"
+                    class="lm-btn-primary flex-grow-1">
+              <i class="bi bi-plus-circle"></i>
+              Create Case
+            </button>
+            <a href="{{ url_for('cases.dashboard') }}"
+               class="lm-btn-outline text-decoration-none">
+              Cancel
+            </a>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Tips Sidebar -->
+    <div class="col-12 col-lg-4 mt-4 mt-lg-0">
+      <div class="lm-panel">
+        <div class="lm-panel-head">
+          <i class="bi bi-lightbulb-fill text-warning"></i>
+          Tips for Better AI
+        </div>
+        <div class="d-flex flex-column gap-3"
+             style="font-size:13px;color:var(--lm-text-2)">
+          <div class="d-flex gap-2">
+            <i class="bi bi-check2-circle text-success mt-1"
+               style="flex-shrink:0"></i>
+            <div>
+              <strong>Detailed description</strong> helps the AI
+              give case-specific answers instead of generic ones
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <i class="bi bi-check2-circle text-success mt-1"
+               style="flex-shrink:0"></i>
+            <div>
+              <strong>Correct case type</strong> helps the Section
+              Suggester recommend the right IPC sections
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <i class="bi bi-check2-circle text-success mt-1"
+               style="flex-shrink:0"></i>
+            <div>
+              <strong>Court name</strong> is used in drafted
+              documents like Legal Notices and Bail Applications
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <i class="bi bi-check2-circle text-success mt-1"
+               style="flex-shrink:0"></i>
+            <div>
+              You can always <strong>edit case details</strong>
+              later from the case detail page
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="lm-panel mt-3">
+        <div class="lm-panel-head">
+          <i class="bi bi-info-circle text-primary"></i>
+          After Creating a Case
+        </div>
+        <div class="d-flex flex-column gap-2"
+             style="font-size:13px">
+          <div class="d-flex align-items-center gap-2">
+            <div class="lm-quick-icon lm-qi-blue"
+                 style="width:28px;height:28px;font-size:13px">
+              <i class="bi bi-upload"></i>
+            </div>
+            Upload case documents (PDF)
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="lm-quick-icon lm-qi-gold"
+                 style="width:28px;height:28px;font-size:13px">
+              <i class="bi bi-calendar-plus"></i>
+            </div>
+            Add court dates and deadlines
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="lm-quick-icon lm-qi-purple"
+                 style="width:28px;height:28px;font-size:13px">
+              <i class="bi bi-chat-dots"></i>
+            </div>
+            Chat with AI about the case
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="lm-quick-icon lm-qi-green"
+                 style="width:28px;height:28px;font-size:13px">
+              <i class="bi bi-file-earmark-text"></i>
+            </div>
+            Draft legal documents
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %} 

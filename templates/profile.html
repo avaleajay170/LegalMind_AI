@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Profile — LegalMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-6">
+      <div class="lm-panel">
+        <div class="lm-panel-head">
+          <i class="bi bi-person-circle text-primary"></i>
+          Advocate Profile
+        </div>
+
+        <div class="text-center mb-4">
+          <div class="lm-avatar mx-auto mb-3"
+               style="width:64px;height:64px;
+                      font-size:26px">
+            {{ user.full_name[0] | upper }}
+          </div>
+          <h4 style="font-family:var(--lm-serif);
+                     font-weight:700">
+            {{ user.full_name }}
+          </h4>
+          <span class="lm-verified-badge mt-2">
+            <i class="bi bi-patch-check-fill"></i>
+            Verified Advocate
+          </span>
+        </div>
+
+        <div class="lm-info-row">
+          <span class="lm-info-label">Enrollment No</span>
+          <span class="lm-info-val lm-mono">
+            {{ user.enrollment_no }}
+          </span>
+        </div>
+        <div class="lm-info-row">
+          <span class="lm-info-label">Bar Council</span>
+          <span class="lm-info-val">{{ user.bar_council }}</span>
+        </div>
+        <div class="lm-info-row">
+          <span class="lm-info-label">State</span>
+          <span class="lm-info-val">{{ user.state }}</span>
+        </div>
+        <div class="lm-info-row">
+          <span class="lm-info-label">Email</span>
+          <span class="lm-info-val">{{ user.email }}</span>
+        </div>
+        {% if user.specialization %}
+        <div class="lm-info-row">
+          <span class="lm-info-label">Specialization</span>
+          <span class="lm-info-val">
+            {{ user.specialization }}
+          </span>
+        </div>
+        {% endif %}
+        <div class="lm-info-row">
+          <span class="lm-info-label">Member Since</span>
+          <span class="lm-info-val">
+            {{ user.created_at.strftime('%d %b %Y')
+               if user.created_at else 'N/A' }}
+          </span>
+        </div>
+
+        <div class="mt-4">
+          <a href="{{ url_for('auth.logout') }}"
+             class="lm-btn-outline w-100 text-center
+                    text-decoration-none"
+             style="color:var(--lm-red);
+                    border-color:#FECACA">
+            <i class="bi bi-box-arrow-right"></i>
+            Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
