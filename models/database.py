@@ -19,9 +19,13 @@ def get_db():
 
     try:
         _client = MongoClient(
-            Config.MONGO_URI,
-            tlsCAFile=certifi.where(),
-            serverSelectionTimeoutMS=5000
+        Config.MONGO_URI,
+        tls=True,
+        tlsCAFile=certifi.where(),
+        tlsAllowInvalidCertificates=False,
+        serverSelectionTimeoutMS=10000,
+        connectTimeoutMS=10000,
+        socketTimeoutMS=10000
         )
         # Test connection
         _client.admin.command("ping")
