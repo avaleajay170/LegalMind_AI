@@ -25,18 +25,37 @@ def chat():
     case_id   = data.get("case_id", "").strip()
     message   = data.get("message", "").strip()
 
-    if not case_id or not message:
+    if not message:
         return jsonify({
             "success": False,
-            "message": "Case ID and message are required."
+            "message": "Message is required."
         })
 
-    db   = get_db()
+    db = get_db()
 
-    # Get case context
-    case = db[Config.CASES_COLLECTION].find_one(
-        {"_id": ObjectId(case_id)}
-    )
+    # ── GENERAL CHAT (no case selected) ─────────────────
+    if not case_id:
+        response = ask_gemini(
+            message      = message,
+            case_context = "General legal query — no specific case selected.",
+            history      = [],
+            mode         = "chat"
+        )
+        return jsonify({
+            "success":  True,
+            "response": response
+        })
+
+    # ── CASE SPECIFIC CHAT ───────────────────────────────
+    try:
+        case = db[Config.CASES_COLLECTION].find_one(
+            {"_id": ObjectId(case_id)}
+        )
+    except Exception:
+        return jsonify({
+            "success": False,
+            "message": "Invalid case ID."
+        })
 
     if not case:
         return jsonify({
@@ -50,7 +69,6 @@ def chat():
     ).sort("timestamp", -1).limit(10))
     history.reverse()
 
-    # Build conversation history for Gemini
     chat_history = []
     for h in history:
         chat_history.append({
@@ -58,18 +76,16 @@ def chat():
             "content": h["message"]
         })
 
-    # Build case context for system prompt
     case_context = f"""
-    Case Title     : {case.get('title', '')}
-    Client Name    : {case.get('client_name', '')}
-    Case Type      : {case.get('case_type', '')}
-    Court          : {case.get('court_name', '')}
-    Status         : {case.get('status', '')}
-    Description    : {case.get('description', '')}
-    Risk Score     : {case.get('risk_score', 0)} / 100
+    Case Title : {case.get('title', '')}
+    Client     : {case.get('client_name', '')}
+    Case Type  : {case.get('case_type', '')}
+    Court      : {case.get('court_name', '')}
+    Status     : {case.get('status', '')}
+    Description: {case.get('description', '')}
+    Risk Score : {case.get('risk_score', 0)} / 100
     """
 
-    # Get AI response
     response = ask_gemini(
         message      = message,
         case_context = case_context,
@@ -77,7 +93,7 @@ def chat():
         mode         = "chat"
     )
 
-    # Save user message to MongoDB
+    # Save messages to MongoDB
     db[Config.CHAT_COLLECTION].insert_one({
         "case_id":   case_id,
         "lawyer_id": session["lawyer_id"],
@@ -86,7 +102,6 @@ def chat():
         "timestamp": datetime.utcnow()
     })
 
-    # Save AI response to MongoDB
     db[Config.CHAT_COLLECTION].insert_one({
         "case_id":   case_id,
         "lawyer_id": session["lawyer_id"],
