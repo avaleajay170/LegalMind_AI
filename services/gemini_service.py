@@ -1,14 +1,24 @@
-import google.generativeai as genai
+import time
+from google import genai
 from config import Config
 
-# ── CONFIGURE GEMINI ─────────────────────────────────────
-genai.configure(api_key=Config.GEMINI_API_KEY)
+# ── CLIENT ────────────────────────────────────────────────
+client = genai.Client(api_key=Config.GEMINI_API_KEY)
 
+# ── FALLBACK MODEL CHAIN ──────────────────────────────────
+# Tried in order — first available and working model is used
+MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-3.5-flash",
+    "gemini-3.6-flash",
+    "gemini-3.8-flash",
+]
 
 # ── SYSTEM PROMPTS ────────────────────────────────────────
 PROMPTS = {
 
-    "chat": """You are LegalMind AI, an expert legal assistant 
+    "chat": """You are LegalMind AI, an expert legal assistant
 specializing in Indian law. You are assisting a verified advocate.
 
 CASE CONTEXT:
@@ -22,8 +32,7 @@ INSTRUCTIONS:
 - Always respond in English
 - Never make up facts — if unsure, say so""",
 
-
-    "research": """You are a legal research assistant specializing 
+    "research": """You are a legal research assistant specializing
 in Indian law including IPC, CrPC, CPC, IBC, IT Act, POCSO and more.
 
 RETRIEVED LEGAL CONTEXT:
@@ -33,14 +42,13 @@ INSTRUCTIONS:
 - Respond with clearly structured legal research
 - Always cite specific Act names and section numbers
 - Format your response as:
-  1. RELEVANT SECTIONS — list exact act + section numbers
-  2. LEGAL POSITION    — 2-3 sentence summary
-  3. KEY PRECEDENTS    — notable cases if applicable
-  4. STRATEGIC INSIGHT — practical implications
+  1. RELEVANT SECTIONS  — list exact act + section numbers
+  2. LEGAL POSITION     — 2-3 sentence summary
+  3. KEY PRECEDENTS     — notable cases if applicable
+  4. STRATEGIC INSIGHT  — practical implications
 - Be precise and cite sources""",
 
-
-    "draft": """You are an expert legal document drafter for 
+    "draft": """You are an expert legal document drafter for
 Indian courts and legal proceedings.
 
 CASE DETAILS:
@@ -54,8 +62,7 @@ INSTRUCTIONS:
 - Return only the document text, ready to use
 - Include placeholders like [DATE], [COURT NAME] where needed""",
 
-
-    "risk": """You are a legal risk assessment expert specializing 
+    "risk": """You are a legal risk assessment expert specializing
 in Indian law and litigation.
 
 CASE DETAILS:
@@ -70,74 +77,168 @@ INSTRUCTIONS:
   "score": <number 0-100>,
   "level": "<Low|Medium|High|Critical>",
   "factors": ["<factor 1>", "<factor 2>", "<factor 3>"],
-  "recommendation": "<one clear action to take>"
-}}"""
+  "recommendation": "<one clear action to take right now>",
+  "breakdown": {{
+    "deadline_risk"  : <0-40>,
+    "document_risk"  : <0-30>,
+    "case_complexity": <0-30>
+  }}
+}}"
+"""
 }
 
 
-# ── MAIN GEMINI FUNCTION ──────────────────────────────────
-def ask_gemini(message, case_context="", history=[], mode="chat"):
+# ── ERROR CLASSIFIER ──────────────────────────────────────
+def _is_retryable(error_text):
+    """503 / 429 = overloaded, worth retrying."""
+    return any(code in error_text for code in [
+        "503", "UNAVAILABLE",
+        "429", "RESOURCE_EXHAUSTED",
+    ])
+
+
+def _is_model_gone(error_text):
+    """404 = model removed, skip to next immediately."""
+    return any(code in error_text for code in [
+        "404", "NOT_FOUND", "no longer available",
+    ])
+
+
+# ── CORE GENERATION WITH FALLBACK ─────────────────────────
+def _generate(contents, retries=3):
     """
-    Send a message to Gemini and get a response.
+    Try each model in MODELS list.
+    For 503/429 errors  → retry with exponential backoff.
+    For 404 errors      → skip to next model immediately.
+    For other errors    → skip to next model.
 
     Args:
-        message      : The user's message or query
-        case_context : Case details or retrieved legal context
-        history      : List of previous messages [{role, content}]
+        contents : str or list[genai.types.Content]
+        retries  : attempts per model for retryable errors
+
+    Returns:
+        str — response text, or None if everything failed
+    """
+    last_error = None
+
+    for model in MODELS:
+        for attempt in range(1, retries + 1):
+            try:
+                print(f"🤖 Trying {model} "
+                      f"(attempt {attempt}/{retries})")
+
+                response = client.models.generate_content(
+                    model    = model,
+                    contents = contents
+                )
+
+                if response and response.text:
+                    print(f"✅ Success with {model}")
+                    return response.text
+
+                print("⚠️ Empty response — trying next model")
+                break
+
+            except Exception as e:
+                last_error   = e
+                error_text   = str(e)
+                short_error  = error_text[:100]
+
+                print(f"❌ {model} attempt {attempt}: {short_error}")
+
+                if _is_model_gone(error_text):
+                    print(f"⏭ {model} unavailable — skipping")
+                    break
+
+                if _is_retryable(error_text):
+                    if attempt < retries:
+                        wait = 2 ** (attempt - 1)   # 1s, 2s, 4s
+                        print(f"⏳ Retrying in {wait}s...")
+                        time.sleep(wait)
+                        continue
+                    else:
+                        print(f"⏭ Max retries reached — "
+                              f"trying next model")
+                        break
+
+                # Unknown error — skip model
+                break
+
+    print(f"❌ All models failed. Last error: {last_error}")
+    return None
+
+
+# ── PUBLIC: CHAT / RESEARCH / DRAFT / RISK ────────────────
+def ask_gemini(message, case_context="",
+               history=None, mode="chat"):
+    """
+    Full conversation call with system prompt + history.
+
+    Args:
+        message      : user's question or request
+        case_context : case data or retrieved legal text
+        history      : list of {role, content} dicts
         mode         : chat | research | draft | risk
 
     Returns:
-        str — Gemini's response
+        str — AI response
     """
+    if history is None:
+        history = []
+
     try:
-        model = genai.GenerativeModel(Config.GEMINI_MODEL)
+        system_prompt = PROMPTS.get(
+            mode, PROMPTS["chat"]
+        ).format(case_context=case_context)
 
-        # Build system prompt with context
-        system_prompt = PROMPTS.get(mode, PROMPTS["chat"]).format(
-            case_context=case_context
-        )
-
-        # Build conversation history
-        gemini_history = []
-        for h in history:
-            role    = "user"  if h["role"] == "user"      else "model"
-            gemini_history.append({
-                "role":  role,
-                "parts": [h["content"]]
-            })
-
-        # Start chat with history
-        chat = model.start_chat(history=gemini_history)
-
-        # Full message = system prompt + user message
         full_message = f"{system_prompt}\n\nUser Query: {message}"
 
-        response = chat.send_message(full_message)
-        return response.text
+        # Build content list with history
+        contents = []
+        for h in history:
+            role = "user" if h.get("role") == "user" else "model"
+            contents.append(
+                genai.types.Content(
+                    role  = role,
+                    parts = [genai.types.Part(
+                        text = h.get("content", "")
+                    )]
+                )
+            )
+
+        # Add current message
+        contents.append(
+            genai.types.Content(
+                role  = "user",
+                parts = [genai.types.Part(text=full_message)]
+            )
+        )
+
+        result = _generate(contents)
+        return result or (
+            "AI service is temporarily unavailable due to high "
+            "demand. Please try again in a moment."
+        )
 
     except Exception as e:
-        print(f"❌ Gemini API error: {e}")
-        return f"AI service temporarily unavailable. Please try again. Error: {str(e)}"
+        print(f"❌ ask_gemini error: {e}")
+        return "AI service temporarily unavailable. Please try again."
 
 
-# ── SIMPLE ONE-SHOT GEMINI CALL ───────────────────────────
+# ── PUBLIC: ONE-SHOT CALL ─────────────────────────────────
 def ask_gemini_once(prompt):
     """
-    Simple single prompt → response.
-    Used for section suggester and risk scorer.
+    Simple prompt → response, no history.
+    Used by section suggester, doc generator, risk scorer.
 
     Args:
-        prompt : Full prompt string
+        prompt : full prompt string
 
     Returns:
-        str — Gemini's response
+        str or None
     """
     try:
-        model    = genai.GenerativeModel(Config.GEMINI_MODEL)
-        response = model.generate_content(prompt)
-        return response.text
-
+        return _generate(prompt)
     except Exception as e:
-        print(f"❌ Gemini API error: {e}")
+        print(f"❌ ask_gemini_once error: {e}")
         return None
-     

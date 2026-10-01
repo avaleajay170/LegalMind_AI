@@ -1,0 +1,772 @@
+{% extends "base.html" %}
+{% block title %}{{ case.title }} — LegalMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- ── BREADCRUMB ───────────────────────────────────── -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb lm-breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('cases.dashboard') }}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active">{{ case.title }}</li>
+    </ol>
+  </nav>
+
+  <!-- ── CASE HEADER ──────────────────────────────────── -->
+  <div class="lm-panel mb-4">
+    <div class="d-flex align-items-start
+                justify-content-between gap-3 flex-wrap">
+      <div class="flex-grow-1">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <h1 class="lm-case-header-title mb-0">
+            {{ case.title }}
+          </h1>
+          <span class="lm-pill
+            {% if case.status == 'active' %}lm-pill-active
+            {% elif case.status == 'pending' %}lm-pill-pending
+            {% else %}lm-pill-review{% endif %}">
+            {{ case.status | capitalize }}
+          </span>
+        </div>
+        <div class="d-flex flex-wrap gap-3 mb-3"
+             style="font-size:13px;color:var(--lm-text-3)">
+          <span>
+            <i class="bi bi-person-fill me-1"></i>
+            {{ case.client_name }}
+          </span>
+          <span>
+            <i class="bi bi-briefcase-fill me-1"></i>
+            {{ case.case_type }}
+          </span>
+          {% if case.court_name %}
+          <span>
+            <i class="bi bi-building me-1"></i>
+            {{ case.court_name }}
+          </span>
+          {% endif %}
+          <span>
+            <i class="bi bi-calendar me-1"></i>
+            {{ case.created_at.strftime('%d %b %Y')
+               if case.created_at else 'N/A' }}
+          </span>
+        </div>
+        {% if case.description %}
+        <p style="font-size:13.5px;
+                  color:var(--lm-text-2);
+                  line-height:1.6;
+                  margin:0">
+          {{ case.description }}
+        </p>
+        {% endif %}
+      </div>
+
+      <!-- Risk Score -->
+      <div class="lm-risk-gauge text-center">
+        <div class="lm-risk-gauge-num
+          {% if case.risk_score >= 70 %}text-danger
+          {% elif case.risk_score >= 40 %}text-warning
+          {% else %}text-success{% endif %}">
+          {{ case.risk_score }}
+        </div>
+        <div class="lm-risk-gauge-lbl">Risk Score</div>
+        <div class="lm-risk-track mt-2" style="width:100px">
+          <div class="lm-risk-fill
+            {% if case.risk_score >= 70 %}lm-rf-high
+            {% elif case.risk_score >= 40 %}lm-rf-mid
+            {% else %}lm-rf-low{% endif %}"
+            style="width:{{ case.risk_score }}%">
+          </div>
+        </div>
+        <button class="lm-mini-btn mt-2"
+                onclick="refreshRisk()">
+          <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex gap-2 mt-3 pt-3
+                border-top flex-wrap">
+      <a href="{{ url_for('cases.edit_case',
+                          case_id=case._id) }}"
+         class="lm-btn-outline text-decoration-none">
+        <i class="bi bi-pencil"></i> Edit Case
+      </a>
+      <a href="{{ url_for('ai.draft') }}?case={{ case._id }}"
+         class="lm-btn-outline text-decoration-none">
+        <i class="bi bi-file-earmark-text"></i> Draft Document
+      </a>
+      <a href="{{ url_for('ai.suggest_sections_route') }}"
+         class="lm-btn-outline text-decoration-none">
+        <i class="bi bi-shield-check"></i> Section Finder
+      </a>
+      <form method="POST"
+            action="{{ url_for('cases.archive_case',
+                              case_id=case._id) }}"
+            class="ms-auto"
+            onsubmit="return confirm('Archive this case?')">
+        <button type="submit" class="lm-btn-outline">
+          <i class="bi bi-archive"></i> Archive
+        </button>
+      </form>
+      <form method="POST"
+            action="{{ url_for('cases.delete_case',
+                              case_id=case._id) }}"
+            onsubmit="return confirm(
+              'Delete this case and ALL related data? This cannot be undone.')">
+        <button type="submit"
+                class="lm-btn-outline"
+                style="color:var(--lm-red);
+                       border-color:#FECACA">
+          <i class="bi bi-trash"></i> Delete
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── MAIN CONTENT GRID ─────────────────────────────── -->
+  <div class="row g-4">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-12 col-lg-8">
+
+      <!-- ── AI CHAT ──────────────────────────────────── -->
+      <div class="lm-panel mb-4">
+        <div class="lm-panel-head">
+          <i class="bi bi-chat-dots-fill text-primary"></i>
+          AI Case Assistant
+          <button class="lm-mini-btn ms-auto text-danger"
+                  onclick="clearChat()">
+            <i class="bi bi-trash"></i> Clear
+          </button>
+        </div>
+
+        <div class="lm-chat-msgs" id="chatBox"
+             style="height:300px">
+          {% if chats %}
+            {% for chat in chats %}
+            <div class="lm-msg
+              {% if chat.role == 'user' %}lm-msg-user
+              {% else %}lm-msg-ai{% endif %}">
+              <div class="lm-msg-who">
+                {% if chat.role == 'user' %}You
+                {% else %}LegalMind AI{% endif %}
+              </div>
+              <div class="lm-bubble
+                {% if chat.role == 'user' %}lm-bubble-user
+                {% else %}lm-bubble-ai{% endif %}">
+                {{ chat.message }}
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="lm-msg lm-msg-ai">
+            <div class="lm-msg-who">LegalMind AI</div>
+            <div class="lm-bubble lm-bubble-ai">
+              Hello! I'm ready to assist with
+              <strong>{{ case.title }}</strong>.
+              I have full context of this case — client details,
+              case type, description and documents.
+              Ask me anything about this case.
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Quick prompts -->
+        <div class="d-flex flex-wrap gap-2 mb-3 mt-2">
+          <button class="lm-example-btn"
+                  onclick="quickChat('What are the strongest arguments for this case?')">
+            Strongest arguments
+          </button>
+          <button class="lm-example-btn"
+                  onclick="quickChat('What documents are missing for this case?')">
+            Missing documents
+          </button>
+          <button class="lm-example-btn"
+                  onclick="quickChat('What are the risks in this case?')">
+            Case risks
+          </button>
+          <button class="lm-example-btn"
+                  onclick="quickChat('Suggest next steps for this case.')">
+            Next steps
+          </button>
+        </div>
+
+        <div class="lm-chat-row">
+          <input type="text"
+                 id="chatInput"
+                 class="lm-chat-in"
+                 placeholder="Ask about this case..."
+                 onkeydown="if(event.key==='Enter') sendChat()">
+          <button class="lm-send-btn" onclick="sendChat()">
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── DOCUMENTS ─────────────────────────────────── -->
+      <div class="lm-panel mb-4">
+        <div class="lm-panel-head">
+          <i class="bi bi-folder-fill text-warning"></i>
+          Documents
+          <span class="lm-badge-count">
+            {{ documents | length }}
+          </span>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="lm-upload-zone mb-3"
+             onclick="document.getElementById(
+                        'docUpload').click()">
+          <form method="POST"
+                id="uploadForm"
+                action="{{ url_for('documents.upload_document') }}"
+                enctype="multipart/form-data">
+            <input type="hidden"
+                   name="case_id"
+                   value="{{ case._id }}">
+            <input type="file"
+                   id="docUpload"
+                   name="file"
+                   style="display:none"
+                   accept=".pdf,.doc,.docx,.txt"
+                   onchange="submitUpload()">
+          </form>
+          <i class="bi bi-cloud-upload lm-upload-icon"></i>
+          <div class="lm-upload-text">
+            Drop document here or click to upload
+          </div>
+          <div class="lm-upload-hint"
+               id="uploadHint">
+            PDF, DOCX, DOC, TXT — max 16MB
+          </div>
+        </div>
+
+        {% if documents %}
+        <div class="d-flex flex-column gap-2">
+          {% for doc in documents %}
+          <div class="lm-doc-row">
+            <div class="lm-doc-icon">
+              {% if doc.filename.endswith('.pdf') %}
+                <i class="bi bi-file-earmark-pdf-fill
+                           text-danger"></i>
+              {% elif doc.filename.endswith(('.doc','.docx')) %}
+                <i class="bi bi-file-earmark-word-fill
+                           text-primary"></i>
+              {% else %}
+                <i class="bi bi-file-earmark-fill
+                           text-secondary"></i>
+              {% endif %}
+            </div>
+            <div class="lm-doc-body">
+              <div class="lm-doc-name">
+                {{ doc.get('original_name', doc.filename) }}
+              </div>
+              <div class="lm-doc-meta">
+                {{ doc.doc_type | capitalize }} ·
+                {{ doc.uploaded_at.strftime('%d %b %Y')
+                   if doc.uploaded_at else '' }}
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <a href="{{ url_for('documents.download_document',
+                                  doc_id=doc._id | string) }}"
+                 class="lm-mini-btn text-decoration-none">
+                <i class="bi bi-download"></i>
+              </a>
+              <form method="POST"
+                    action="{{ url_for('documents.delete_document',
+                                      doc_id=doc._id | string) }}"
+                    onsubmit="return confirm(
+                      'Delete this document?')">
+                <button type="submit"
+                        class="lm-mini-btn text-danger">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-3"
+             style="color:var(--lm-text-3);font-size:13px">
+          No documents uploaded yet
+        </div>
+        {% endif %}
+
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-12 col-lg-4">
+
+      <!-- ── CLIENT INFO ───────────────────────────────── -->
+      <div class="lm-panel mb-4">
+        <div class="lm-panel-head">
+          <i class="bi bi-person-fill text-primary"></i>
+          Client Information
+        </div>
+        <div class="lm-info-row">
+          <span class="lm-info-label">Name</span>
+          <span class="lm-info-val">{{ case.client_name }}</span>
+        </div>
+        {% if case.client_phone %}
+        <div class="lm-info-row">
+          <span class="lm-info-label">Phone</span>
+          <span class="lm-info-val">
+            {{ case.client_phone }}
+          </span>
+        </div>
+        {% endif %}
+        {% if case.client_email %}
+        <div class="lm-info-row">
+          <span class="lm-info-label">Email</span>
+          <span class="lm-info-val">
+            {{ case.client_email }}
+          </span>
+        </div>
+        {% endif %}
+        <div class="lm-info-row">
+          <span class="lm-info-label">Case Type</span>
+          <span class="lm-info-val">{{ case.case_type }}</span>
+        </div>
+        {% if case.court_name %}
+        <div class="lm-info-row">
+          <span class="lm-info-label">Court</span>
+          <span class="lm-info-val">{{ case.court_name }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- ── DEADLINES ─────────────────────────────────── -->
+      <div class="lm-panel mb-4">
+        <div class="lm-panel-head">
+          <i class="bi bi-calendar-event-fill text-warning"></i>
+          Deadlines
+          <span class="lm-badge-count">
+            {{ deadlines | length }}
+          </span>
+          <button class="lm-mini-btn ms-auto"
+                  data-bs-toggle="modal"
+                  data-bs-target="#addDeadlineModal">
+            <i class="bi bi-plus"></i>
+          </button>
+        </div>
+
+        {% if deadlines %}
+        <div class="d-flex flex-column gap-2">
+          {% for dl in deadlines %}
+          <div class="lm-dl-item
+            {% if not dl.is_done %}
+              {% if dl.urgency == 'red' %}lm-dl-red
+              {% elif dl.urgency == 'amber' %}lm-dl-amber
+              {% else %}lm-dl-green{% endif %}
+            {% endif %}"
+            style="{% if dl.is_done %}opacity:0.5{% endif %}">
+            <div class="lm-dl-dot
+              {% if dl.is_done %}
+                style='background:var(--lm-gray-400)'
+              {% elif dl.urgency == 'red' %}lm-dl-dot-red
+              {% elif dl.urgency == 'amber' %}lm-dl-dot-amber
+              {% else %}lm-dl-dot-green{% endif %}">
+            </div>
+            <div class="flex-grow-1 min-w-0">
+              <div class="lm-dl-name
+                {% if dl.is_done %}text-decoration-line-through{% endif %}">
+                {{ dl.title }}
+              </div>
+              <div class="lm-dl-sub">
+                {{ dl.due_date }} · {{ dl.deadline_type }}
+              </div>
+            </div>
+            {% if not dl.is_done %}
+            <button class="lm-mini-btn"
+                    onclick="markDone('{{ dl._id | string }}',
+                                      this)"
+                    title="Mark done">
+              <i class="bi bi-check2"></i>
+            </button>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-2"
+             style="color:var(--lm-text-3);font-size:13px">
+          No deadlines added yet
+        </div>
+        {% endif %}
+
+        <a href="{{ url_for('deadlines.all_deadlines') }}"
+           class="lm-btn-outline w-100 text-center
+                  text-decoration-none mt-3">
+          View All Deadlines
+        </a>
+      </div>
+
+      <!-- ── QUICK ACTIONS ─────────────────────────────── -->
+      <div class="lm-panel">
+        <div class="lm-panel-head">
+          <i class="bi bi-lightning-fill text-warning"></i>
+          Quick Actions
+        </div>
+        <div class="d-flex flex-column gap-2">
+          <a href="{{ url_for('ai.draft') }}"
+             class="lm-quick-action-btn">
+            <i class="bi bi-file-earmark-text"></i>
+            Draft Legal Document
+          </a>
+          <a href="{{ url_for('ai.research') }}"
+             class="lm-quick-action-btn">
+            <i class="bi bi-search"></i>
+            Legal Research
+          </a>
+          <a href="{{ url_for('ai.suggest_sections_route') }}"
+             class="lm-quick-action-btn">
+            <i class="bi bi-shield-check"></i>
+            Section Finder
+          </a>
+          <button class="lm-quick-action-btn"
+                  onclick="refreshRisk()">
+            <i class="bi bi-graph-up"></i>
+            Refresh Risk Score
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD DEADLINE MODAL ─────────────────────────────── -->
+<div class="modal fade" id="addDeadlineModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content lm-modal">
+      <div class="modal-header">
+        <h5 class="modal-title fw-600">Add Deadline</h5>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST"
+              action="{{ url_for('deadlines.add_deadline') }}">
+          <input type="hidden"
+                 name="case_id"
+                 value="{{ case._id }}">
+
+          <div class="lm-field">
+            <label class="lm-label">
+              Title <span class="text-danger">*</span>
+            </label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-text-left lm-input-icon"></i>
+              <input type="text"
+                     name="title"
+                     class="lm-input"
+                     placeholder="e.g. Final Hearing"
+                     required>
+            </div>
+          </div>
+
+          <div class="lm-field">
+            <label class="lm-label">
+              Due Date <span class="text-danger">*</span>
+            </label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-calendar lm-input-icon"></i>
+              <input type="date"
+                     name="due_date"
+                     class="lm-input"
+                     required>
+            </div>
+          </div>
+
+          <div class="lm-field mb-0">
+            <label class="lm-label">Type</label>
+            <div class="lm-input-wrap">
+              <i class="bi bi-tag lm-input-icon"></i>
+              <select name="deadline_type"
+                      class="lm-input lm-select">
+                <option value="hearing">Hearing</option>
+                <option value="filing">Filing</option>
+                <option value="limitation">Limitation</option>
+                <option value="compliance">Compliance</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit"
+                  class="lm-btn-primary w-100 mt-3">
+            <i class="bi bi-plus-circle"></i> Add Deadline
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.lm-breadcrumb {
+  font-size:   13px;
+  margin-bottom: 0;
+}
+
+.lm-breadcrumb a {
+  color:           var(--lm-indigo);
+  text-decoration: none;
+}
+
+.lm-breadcrumb a:hover { text-decoration: underline; }
+
+.lm-case-header-title {
+  font-family:    var(--lm-serif);
+  font-size:      22px;
+  font-weight:    700;
+  color:          var(--lm-text);
+  letter-spacing: -0.02em;
+}
+
+.lm-risk-gauge {
+  flex-shrink: 0;
+  min-width:   100px;
+}
+
+.lm-risk-gauge-num {
+  font-family: var(--lm-serif);
+  font-size:   36px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.lm-risk-gauge-lbl {
+  font-size:  11px;
+  color:      var(--lm-text-3);
+  margin-top: 3px;
+}
+
+/* Doc rows */
+.lm-doc-row {
+  display:       flex;
+  align-items:   center;
+  gap:           12px;
+  padding:       10px 12px;
+  border-radius: 8px;
+  border:        1px solid var(--lm-border);
+  background:    var(--lm-white);
+  transition:    all 0.13s;
+}
+
+.lm-doc-row:hover {
+  border-color: var(--lm-border-2);
+  background:   var(--lm-gray-50);
+}
+
+.lm-doc-icon  { font-size: 20px; flex-shrink: 0; }
+.lm-doc-body  { flex: 1; min-width: 0; }
+
+.lm-doc-name {
+  font-size:     13px;
+  font-weight:   500;
+  color:         var(--lm-text);
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+.lm-doc-meta {
+  font-size:  11.5px;
+  color:      var(--lm-text-3);
+  margin-top: 2px;
+}
+
+/* Info rows */
+.lm-info-row {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  padding:         8px 0;
+  border-bottom:   1px solid var(--lm-border);
+  font-size:       13px;
+}
+
+.lm-info-row:last-child { border-bottom: none; }
+.lm-info-label { color: var(--lm-text-3); font-weight: 500; }
+.lm-info-val   { color: var(--lm-text);   font-weight: 500; text-align: right; }
+
+/* Quick action buttons */
+.lm-quick-action-btn {
+  display:         flex;
+  align-items:     center;
+  gap:             10px;
+  padding:         10px 14px;
+  border-radius:   8px;
+  border:          1px solid var(--lm-border);
+  background:      var(--lm-white);
+  color:           var(--lm-text-2);
+  font-size:       13px;
+  font-weight:     500;
+  cursor:          pointer;
+  transition:      all 0.13s;
+  text-decoration: none;
+  font-family:     var(--lm-font);
+  width:           100%;
+}
+
+.lm-quick-action-btn:hover {
+  background:   var(--lm-indigo-50);
+  border-color: var(--lm-indigo-100);
+  color:        var(--lm-indigo);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CASE_ID = "{{ case._id }}";
+
+// ── SEND CHAT ─────────────────────────────────────────────
+function sendChat() {
+  const inp  = document.getElementById("chatInput");
+  const box  = document.getElementById("chatBox");
+  const text = inp.value.trim();
+  if (!text) return;
+
+  appendMsg("user", text, box);
+  inp.value = "";
+
+  const typingId = appendTyping(box);
+
+  fetch("/ai/chat", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ case_id: CASE_ID, message: text })
+  })
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById(typingId)?.remove();
+    appendMsg("ai", data.response || data.message, box);
+  })
+  .catch(() => {
+    document.getElementById(typingId)?.remove();
+    appendMsg("ai",
+      "AI service temporarily unavailable.", box);
+  });
+}
+
+// ── QUICK CHAT ────────────────────────────────────────────
+function quickChat(prompt) {
+  document.getElementById("chatInput").value = prompt;
+  sendChat();
+}
+
+// ── APPEND MESSAGE ────────────────────────────────────────
+function appendMsg(role, text, box) {
+  const isUser = role === "user";
+  const div    = document.createElement("div");
+  div.className = `lm-msg ${isUser
+    ? "lm-msg-user" : "lm-msg-ai"}`;
+  div.innerHTML = `
+    <div class="lm-msg-who">
+      ${isUser ? "You" : "LegalMind AI"}
+    </div>
+    <div class="lm-bubble ${isUser
+      ? "lm-bubble-user" : "lm-bubble-ai"}">
+      ${text}
+    </div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ── APPEND TYPING ─────────────────────────────────────────
+function appendTyping(box) {
+  const id  = "typing-" + Date.now();
+  const div = document.createElement("div");
+  div.id        = id;
+  div.className = "lm-msg lm-msg-ai";
+  div.innerHTML = `
+    <div class="lm-msg-who">LegalMind AI</div>
+    <div class="lm-bubble lm-bubble-ai">
+      <div class="lm-typing">
+        <div class="lm-tdot"></div>
+        <div class="lm-tdot"></div>
+        <div class="lm-tdot"></div>
+      </div>
+    </div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return id;
+}
+
+// ── CLEAR CHAT ────────────────────────────────────────────
+function clearChat() {
+  if (!confirm("Clear all chat history for this case?")) return;
+
+  fetch(`/ai/clear-chat/${CASE_ID}`, { method: "POST" })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) location.reload();
+  });
+}
+
+// ── MARK DEADLINE DONE ────────────────────────────────────
+function markDone(id, btn) {
+  btn.disabled = true;
+
+  fetch(`/deadlines/${id}/done`, { method: "POST" })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) location.reload();
+    else {
+      btn.disabled = false;
+      alert("Error: " + data.message);
+    }
+  });
+}
+
+// ── REFRESH RISK SCORE ────────────────────────────────────
+function refreshRisk() {
+  const gauge = document.querySelector(".lm-risk-gauge-num");
+  gauge.textContent = "...";
+
+  fetch(`/ai/risk-score/${CASE_ID}`)
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      gauge.textContent = data.score;
+      alert(
+        `Risk Score: ${data.score}/100 (${data.level})\n\n` +
+        `Factors:\n${data.factors.join('\n')}\n\n` +
+        `Recommendation: ${data.recommendation}`
+      );
+      location.reload();
+    }
+  })
+  .catch(() => { gauge.textContent = "—"; });
+}
+
+// ── UPLOAD FORM ───────────────────────────────────────────
+function submitUpload() {
+  const input = document.getElementById("docUpload");
+  if (input.files.length > 0) {
+    document.getElementById("uploadHint").textContent =
+      "Uploading: " + input.files[0].name + "...";
+    document.getElementById("uploadForm").submit();
+  }
+}
+
+// ── SCROLL CHAT TO BOTTOM ─────────────────────────────────
+window.addEventListener("load", () => {
+  const box = document.getElementById("chatBox");
+  box.scrollTop = box.scrollHeight;
+});
+</script>
+{% endblock %} 

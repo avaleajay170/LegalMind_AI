@@ -11,7 +11,8 @@ class Config:
 
     # ── GEMINI API ──────────────────────────────────────
     GEMINI_API_KEY    = os.getenv("GEMINI_API_KEY", "")
-    GEMINI_MODEL      = "gemini-1.5-flash"
+    GEMINI_MODEL       = "gemini-2.5-flash"   # primary
+    GEMINI_EMBED_MODEL = "gemini-embedding-001"
 
     # ── MONGODB ─────────────────────────────────────────
     MONGO_URI         = os.getenv("MONGO_URI", "")

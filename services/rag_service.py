@@ -2,42 +2,32 @@ import os
 import faiss
 import pickle
 import numpy as np
-import google.generativeai as genai
+from google import genai
 from config import Config
 from services.pdf_service import extract_text_from_pdf, chunk_text
 
-# ── CONFIGURE GEMINI ──────────────────────────────────────
-genai.configure(api_key=Config.GEMINI_API_KEY)
+# ── CONFIGURE CLIENT ──────────────────────────────────────
+client = genai.Client(api_key=Config.GEMINI_API_KEY)
 
 # ── PATHS ─────────────────────────────────────────────────
-INDEX_PATH    = os.path.join(Config.VECTOR_STORE_PATH, "legal_index.faiss")
-CHUNKS_PATH   = os.path.join(Config.VECTOR_STORE_PATH, "legal_chunks.pkl")
-EMBED_DIM     = 768   # Gemini embedding dimension
+INDEX_PATH  = os.path.join(Config.VECTOR_STORE_PATH, "legal_index.faiss")
+CHUNKS_PATH = os.path.join(Config.VECTOR_STORE_PATH, "legal_chunks.pkl")
+EMBED_DIM   = 3072  # gemini-embedding-001 dimension
 
 
 # ── GET EMBEDDING ─────────────────────────────────────────
 def get_embedding(text):
-    """
-    Get embedding vector for a text using Gemini.
-
-    Args:
-        text : input text string
-
-    Returns:
-        list of floats — embedding vector
-    """
+    """Get embedding vector using Gemini."""
     try:
-        result = genai.embed_content(
-            model   = "models/embedding-001",
-            content = text,
-            task_type = "retrieval_document"
+        result = client.models.embed_content(
+            model   = "gemini-embedding-001",
+            contents= text
         )
-        return result["embedding"]
+        return result.embeddings[0].values
 
     except Exception as e:
         print(f"❌ Embedding error: {e}")
         return None
-
 
 # ── BUILD FAISS INDEX FROM PDFs ───────────────────────────
 def build_index_from_pdfs(pdf_folder=None):

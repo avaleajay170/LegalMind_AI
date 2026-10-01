@@ -12,8 +12,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800&display=swap" rel="stylesheet">
   <!-- Custom CSS -->
   <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 
@@ -94,6 +93,13 @@
           <div class="lm-search-results" id="searchResults"></div>
         </div>
 
+        <!-- Theme Toggle -->
+        <button class="theme-toggle"
+            id="themeToggleBtn"
+            onclick="toggleTheme()"
+            title="Toggle dark mode">
+          <i class="bi bi-moon-fill"></i>
+        </button>
         <!-- Notifications -->
         <div class="position-relative">
           <a href="{{ url_for('deadlines.all_deadlines') }}"
@@ -261,6 +267,28 @@ setTimeout(() => {
     setTimeout(() => el.remove(), 300);
   });
 }, 4000);
+</script>
+<script>
+const _theme = localStorage.getItem("lm_theme") || "light";
+document.documentElement.setAttribute("data-theme", _theme);
+const _btn = document.getElementById("themeToggleBtn");
+if (_btn) {
+  _btn.innerHTML = _theme === "dark"
+    ? '<i class="bi bi-sun-fill"></i>'
+    : '<i class="bi bi-moon-fill"></i>';
+}
+function toggleTheme() {
+  const cur  = document.documentElement.getAttribute("data-theme");
+  const next = cur === "light" ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("lm_theme", next);
+  const btn = document.getElementById("themeToggleBtn");
+  if (btn) {
+    btn.innerHTML = next === "dark"
+      ? '<i class="bi bi-sun-fill"></i>'
+      : '<i class="bi bi-moon-fill"></i>';
+  }
+}
 </script>
 
 {% block extra_js %}{% endblock %}

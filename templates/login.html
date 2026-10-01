@@ -1,202 +1,1307 @@
- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In — LegalMind AI</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sign In — LegalMind AI</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        href="{{ url_for('static', filename='css/style.css') }}"
+        rel="stylesheet"
+    >
 </head>
-<body class="lm-auth-body">
 
-<div class="lm-auth-layout">
+<body class="lm-login-page">
 
-  <!-- ── LEFT PANEL ──────────────────────────────────── -->
-  <div class="lm-auth-left">
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
 
-    <div class="lm-auth-brand">
-      <div class="brand-mark">
-        <i class="bi bi-layers-fill"></i>
-      </div>
-      <span class="brand-name">LegalMind <span>AI</span></span>
-    </div>
+<nav class="lm-login-nav">
 
-    <div class="lm-auth-hero">
-      <div class="lm-auth-eyebrow">
-        <i class="bi bi-shield-check-fill"></i>
-        Verified Advocates Only
-      </div>
-      <h1 class="lm-auth-heading">
-        The <em>intelligent</em> co-counsel for every case
-      </h1>
-      <p class="lm-auth-sub">
-        LegalMind AI brings together case management, legal research,
-        document drafting and AI assistance — in one secure platform
-        built exclusively for Indian advocates.
-      </p>
-    </div>
+    <a href="{{ url_for('auth.login') }}" class="lm-login-brand">
 
-    <div class="lm-feature-list">
-      <div class="lm-feature-item">
-        <div class="lm-feature-icon">
-          <i class="bi bi-chat-dots-fill"></i>
+        <div class="lm-login-logo">
+            <i class="bi bi-scale"></i>
         </div>
+
         <div>
-          <div class="lm-feature-title">AI Case Assistant</div>
-          <div class="lm-feature-desc">
-            Chat with Gemini AI — loaded with your full case context
-          </div>
-        </div>
-      </div>
-      <div class="lm-feature-item">
-        <div class="lm-feature-icon">
-          <i class="bi bi-shield-fill"></i>
-        </div>
-        <div>
-          <div class="lm-feature-title">Section Suggester</div>
-          <div class="lm-feature-desc">
-            Describe any incident — get IPC/CrPC sections instantly
-          </div>
-        </div>
-      </div>
-      <div class="lm-feature-item">
-        <div class="lm-feature-icon">
-          <i class="bi bi-file-earmark-text-fill"></i>
-        </div>
-        <div>
-          <div class="lm-feature-title">Document Drafter</div>
-          <div class="lm-feature-desc">
-            Generate legal notices, FIRs and affidavits in seconds
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="lm-auth-stats">
-      <div class="lm-auth-stat">
-        <div class="lm-stat-num">1.7M</div>
-        <div class="lm-stat-lbl">Advocates in India</div>
-      </div>
-      <div class="lm-auth-stat">
-        <div class="lm-stat-num">10×</div>
-        <div class="lm-stat-lbl">Faster research</div>
-      </div>
-      <div class="lm-auth-stat">
-        <div class="lm-stat-num">100%</div>
-        <div class="lm-stat-lbl">Bar Council verified</div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── RIGHT PANEL ─────────────────────────────────── -->
-  <div class="lm-auth-right">
-    <div class="lm-form-box">
-
-      <!-- Flash Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="lm-alert lm-alert-{{ category }} mb-3">
-              <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'error' %}x-circle{% else %}info-circle{% endif %}-fill"></i>
-              {{ message }}
+            <div class="lm-login-brand-name">
+                LegalMind <span>AI</span>
             </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
 
-      <div class="lm-form-header">
-        <h2 class="lm-form-title">Welcome back</h2>
-        <p class="lm-form-subtitle">
-          Don't have an account?
-          <a href="{{ url_for('auth.register') }}">Register as advocate →</a>
-        </p>
-      </div>
-
-      <div class="lm-alert lm-alert-info mb-3">
-        <i class="bi bi-info-circle-fill"></i>
-        Access is restricted to verified Bar Council advocates only.
-      </div>
-
-      <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
-
-        <!-- Email -->
-        <div class="lm-field">
-          <label class="lm-label">
-            Email address <span class="text-danger">*</span>
-          </label>
-          <div class="lm-input-wrap">
-            <i class="bi bi-envelope lm-input-icon"></i>
-            <input type="email"
-                   name="email"
-                   class="lm-input"
-                   placeholder="rajesh@lawchambers.com"
-                   required
-                   autocomplete="email">
-          </div>
+            <div class="lm-login-brand-tag">
+                LEGAL WORKFLOW INTELLIGENCE
+            </div>
         </div>
 
-        <!-- Password -->
-        <div class="lm-field">
-          <label class="lm-label">
-            Password <span class="text-danger">*</span>
-          </label>
-          <div class="lm-input-wrap">
-            <i class="bi bi-lock lm-input-icon"></i>
-            <input type="password"
-                   name="password"
-                   id="loginPw"
-                   class="lm-input"
-                   placeholder="Enter your password"
-                   required
-                   style="padding-right:42px">
-            <button type="button"
-                    class="lm-pw-toggle"
-                    onclick="togglePw('loginPw', this)">
-              <i class="bi bi-eye"></i>
-            </button>
-          </div>
-        </div>
+    </a>
 
-        <div class="d-flex justify-content-end mb-3">
-          <a href="#" class="lm-forgot">Forgot password?</a>
-        </div>
+    <div class="lm-login-nav-links">
 
-        <button type="submit" class="lm-btn-primary w-100">
-          <i class="bi bi-box-arrow-in-right"></i>
-          Sign in to LegalMind AI
-        </button>
+        <a href="#features">Features</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#security">Security</a>
 
-      </form>
-
-      <div class="lm-divider">
-        <span>New to the platform?</span>
-      </div>
-
-      <a href="{{ url_for('auth.register') }}"
-         class="lm-btn-outline w-100 text-center text-decoration-none">
-        <i class="bi bi-person-plus"></i>
-        Create an advocate account
-      </a>
+        <a href="#login" class="lm-nav-login-btn">
+        Sign in
+        <i class="bi bi-arrow-right"></i>
+        </a>
+        <a
+            href="{{ url_for('auth.register') }}"
+            class="lm-nav-login-btn"
+        >
+            Register
+            <i class="bi bi-arrow-up-right"></i>
+        </a>
 
     </div>
-  </div>
 
-</div>
+</nav>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- =========================================================
+     HERO
+========================================================= -->
+
+<section class="lm-login-hero">
+
+    <!-- Decorative Indian legal geometry -->
+
+    <div class="lm-hero-grid"></div>
+
+    <div class="lm-legal-watermark">
+        <i class="bi bi-bank"></i>
+    </div>
+
+    <div class="lm-ashoka-ring">
+        <span>⚖</span>
+    </div>
+
+
+    <div class="lm-hero-content">
+
+        <div class="lm-hero-eyebrow">
+
+            <span class="lm-live-dot"></span>
+
+            AI-POWERED LEGAL WORKFLOW
+
+            <span class="lm-eyebrow-line"></span>
+
+            FOR INDIAN ADVOCATES
+
+        </div>
+
+
+        <h1 class="lm-hero-title">
+
+            Your case.
+            <br>
+
+            Your intelligence.
+
+            <br>
+
+            <em>Your advantage.</em>
+
+        </h1>
+
+
+        <p class="lm-hero-description">
+
+            LegalMind AI brings case management, legal research,
+            document intelligence, drafting and deadline awareness
+            together in one intelligent workspace.
+
+        </p>
+
+
+        <div class="lm-hero-actions">
+
+            <a
+                href="#login"
+                class="lm-hero-primary"
+            >
+                Enter LegalMind AI
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+            <a
+                href="#features"
+                class="lm-hero-secondary"
+            >
+                Explore platform
+                <i class="bi bi-chevron-down"></i>
+            </a>
+
+        </div>
+
+
+        <div class="lm-trust-row">
+
+            <div>
+                <i class="bi bi-shield-check"></i>
+                Secure case workspace
+            </div>
+
+            <div>
+                <i class="bi bi-database-check"></i>
+                Persistent case context
+            </div>
+
+            <div>
+                <i class="bi bi-stars"></i>
+                AI-assisted workflows
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Floating legal document -->
+
+    <div class="lm-hero-document">
+
+        <div class="lm-document-top">
+
+            <div class="lm-document-seal">
+                <i class="bi bi-shield-check"></i>
+            </div>
+
+            <div>
+
+                <div class="lm-document-title">
+                    CASE INTELLIGENCE
+                </div>
+
+                <div class="lm-document-sub">
+                    LegalMind AI
+                </div>
+
+            </div>
+
+            <span class="lm-document-status">
+                ACTIVE
+            </span>
+
+        </div>
+
+
+        <div class="lm-document-line wide"></div>
+        <div class="lm-document-line"></div>
+        <div class="lm-document-line medium"></div>
+
+
+        <div class="lm-document-analysis">
+
+            <div class="lm-analysis-icon">
+                <i class="bi bi-stars"></i>
+            </div>
+
+            <div>
+
+                <strong>
+                    AI Case Analysis
+                </strong>
+
+                <span>
+                    Evidence context detected
+                </span>
+
+            </div>
+
+            <i class="bi bi-check-circle-fill lm-analysis-check"></i>
+
+        </div>
+
+
+        <div class="lm-document-analysis">
+
+            <div class="lm-analysis-icon purple">
+                <i class="bi bi-file-earmark-text"></i>
+            </div>
+
+            <div>
+
+                <strong>
+                    Document Intelligence
+                </strong>
+
+                <span>
+                    12 clauses analyzed
+                </span>
+
+            </div>
+
+            <i class="bi bi-check-circle-fill lm-analysis-check"></i>
+
+        </div>
+
+
+        <div class="lm-document-analysis">
+
+            <div class="lm-analysis-icon gold">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+
+            <div>
+
+                <strong>
+                    Deadline Monitor
+                </strong>
+
+                <span>
+                    3 upcoming deadlines
+                </span>
+
+            </div>
+
+            <i class="bi bi-exclamation-circle-fill lm-analysis-warning"></i>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     LEGAL IDENTITY STRIP
+========================================================= -->
+
+<section class="lm-legal-strip">
+
+    <div class="lm-legal-strip-inner">
+
+        <div class="lm-legal-symbol">
+            <i class="bi bi-scale"></i>
+        </div>
+
+        <div>
+            <strong>
+                Built around the realities of legal practice
+            </strong>
+
+            <span>
+                Designed for case-aware workflows and Indian legal professionals.
+            </span>
+        </div>
+
+        <div class="lm-strip-divider"></div>
+
+        <div class="lm-constitution-mark">
+            <span>भारत</span>
+            <small>JUSTICE • LAW • DUTY</small>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     FEATURES
+========================================================= -->
+
+<section
+    class="lm-feature-section"
+    id="features"
+>
+
+    <div class="lm-section-intro">
+
+        <div class="lm-section-kicker">
+            ONE CONNECTED WORKSPACE
+        </div>
+
+        <h2>
+            Everything around the case,
+            <em>in one place.</em>
+        </h2>
+
+        <p>
+            LegalMind AI connects the different parts of a legal
+            workflow instead of treating them as isolated tools.
+        </p>
+
+    </div>
+
+
+    <div class="lm-feature-grid">
+
+
+        <!-- Feature 1 -->
+
+        <article class="lm-feature-card active">
+
+            <div class="lm-feature-card-number">
+                01
+            </div>
+
+            <div class="lm-feature-card-icon">
+                <i class="bi bi-briefcase-fill"></i>
+            </div>
+
+            <h3>
+                Case Command Center
+            </h3>
+
+            <p>
+                Organize client information, timelines, notes,
+                documents, assignments and case status around
+                one case identity.
+            </p>
+
+            <div class="lm-feature-card-footer">
+                <span>CASE MANAGEMENT</span>
+                <i class="bi bi-arrow-up-right"></i>
+            </div>
+
+        </article>
+
+
+        <!-- Feature 2 -->
+
+        <article class="lm-feature-card">
+
+            <div class="lm-feature-card-number">
+                02
+            </div>
+
+            <div class="lm-feature-card-icon blue">
+                <i class="bi bi-search"></i>
+            </div>
+
+            <h3>
+                AI Legal Research
+            </h3>
+
+            <p>
+                Ground legal research in relevant case material,
+                indexed references, statutes, precedents and
+                case-specific context.
+            </p>
+
+            <div class="lm-feature-card-footer">
+                <span>LEGAL RESEARCH</span>
+                <i class="bi bi-arrow-up-right"></i>
+            </div>
+
+        </article>
+
+
+        <!-- Feature 3 -->
+
+        <article class="lm-feature-card">
+
+            <div class="lm-feature-card-number">
+                03
+            </div>
+
+            <div class="lm-feature-card-icon gold">
+                <i class="bi bi-file-earmark-richtext-fill"></i>
+            </div>
+
+            <h3>
+                Document Drafting
+            </h3>
+
+            <p>
+                Generate structured legal drafts such as notices,
+                petitions, affidavits and other case documents
+                with AI-assisted workflows.
+            </p>
+
+            <div class="lm-feature-card-footer">
+                <span>DRAFTING STUDIO</span>
+                <i class="bi bi-arrow-up-right"></i>
+            </div>
+
+        </article>
+
+
+        <!-- Feature 4 -->
+
+        <article class="lm-feature-card">
+
+            <div class="lm-feature-card-number">
+                04
+            </div>
+
+            <div class="lm-feature-card-icon green">
+                <i class="bi bi-file-earmark-check-fill"></i>
+            </div>
+
+            <h3>
+                Document Intelligence
+            </h3>
+
+            <p>
+                Parse uploaded documents, extract clauses and
+                surface anomalies or potential contractual risks.
+            </p>
+
+            <div class="lm-feature-card-footer">
+                <span>DOCUMENT AI</span>
+                <i class="bi bi-arrow-up-right"></i>
+            </div>
+
+        </article>
+
+
+        <!-- Feature 5 -->
+
+        <article class="lm-feature-card">
+
+            <div class="lm-feature-card-number">
+                05
+            </div>
+
+            <div class="lm-feature-card-icon red">
+                <i class="bi bi-calendar2-check-fill"></i>
+            </div>
+
+            <h3>
+                Deadline Monitor
+            </h3>
+
+            <p>
+                Track hearings, filing dates, limitation periods
+                and important legal deadlines from a connected
+                workflow.
+            </p>
+
+            <div class="lm-feature-card-footer">
+                <span>COMPLIANCE</span>
+                <i class="bi bi-arrow-up-right"></i>
+            </div>
+
+        </article>
+
+
+        <!-- Feature 6 -->
+
+        <article class="lm-feature-card">
+
+            <div class="lm-feature-card-number">
+                06
+            </div>
+
+            <div class="lm-feature-card-icon purple">
+                <i class="bi bi-diagram-3-fill"></i>
+            </div>
+
+            <h3>
+                Clause DNA
+            </h3>
+
+            <p>
+                Compare legal documents clause by clause and
+                identify omissions, deviations and areas that
+                require closer review.
+            </p>
+
+            <div class="lm-feature-card-footer">
+                <span>COMPARISON AI</span>
+                <i class="bi bi-arrow-up-right"></i>
+            </div>
+
+        </article>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     INTERACTIVE WORKFLOW
+========================================================= -->
+
+<section
+    class="lm-workflow-section"
+    id="workflow"
+>
+
+    <div class="lm-workflow-container">
+
+        <div class="lm-section-intro light">
+
+            <div class="lm-section-kicker">
+                CASE-AWARE INTELLIGENCE
+            </div>
+
+            <h2>
+                One case.
+                <br>
+                <em>Multiple intelligent workflows.</em>
+            </h2>
+
+            <p>
+                LegalMind AI is designed around the idea that
+                research, drafting, documents and deadlines should
+                understand the same case context.
+            </p>
+
+        </div>
+
+
+        <div class="lm-workflow-tabs">
+
+            <button
+                class="lm-workflow-tab active"
+                data-tab="assistant"
+            >
+                <i class="bi bi-chat-square-text-fill"></i>
+                <span>Case Assistant</span>
+            </button>
+
+            <button
+                class="lm-workflow-tab"
+                data-tab="research"
+            >
+                <i class="bi bi-search"></i>
+                <span>Research</span>
+            </button>
+
+            <button
+                class="lm-workflow-tab"
+                data-tab="documents"
+            >
+                <i class="bi bi-file-earmark-text-fill"></i>
+                <span>Documents</span>
+            </button>
+
+            <button
+                class="lm-workflow-tab"
+                data-tab="risk"
+            >
+                <i class="bi bi-activity"></i>
+                <span>Risk & Deadlines</span>
+            </button>
+
+        </div>
+
+
+        <div class="lm-workflow-display">
+
+
+            <!-- Assistant -->
+
+            <div
+                class="lm-workflow-panel active"
+                id="tab-assistant"
+            >
+
+                <div class="lm-panel-icon">
+                    <i class="bi bi-stars"></i>
+                </div>
+
+                <div>
+
+                    <span class="lm-panel-kicker">
+                        PERSISTENT CASE ASSISTANT
+                    </span>
+
+                    <h3>
+                        Ask questions with case context already in view.
+                    </h3>
+
+                    <p>
+                        The platform is designed to retain relevant
+                        case understanding across conversations,
+                        allowing the assistant to work around the
+                        same matter instead of starting from zero.
+                    </p>
+
+                    <div class="lm-panel-points">
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            Case-specific context
+                        </span>
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            Stored conversations
+                        </span>
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            Document-aware assistance
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Research -->
+
+            <div
+                class="lm-workflow-panel"
+                id="tab-research"
+            >
+
+                <div class="lm-panel-icon blue">
+                    <i class="bi bi-search"></i>
+                </div>
+
+                <div>
+
+                    <span class="lm-panel-kicker">
+                        AI LEGAL RESEARCH
+                    </span>
+
+                    <h3>
+                        Bring research closer to the actual case.
+                    </h3>
+
+                    <p>
+                        Legal research can be grounded using
+                        case-specific material and indexed legal
+                        references to make the workflow more connected.
+                    </p>
+
+                    <div class="lm-panel-points">
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            Case-law oriented search
+                        </span>
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            Indexed references
+                        </span>
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            Retrieval-based grounding
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Documents -->
+
+            <div
+                class="lm-workflow-panel"
+                id="tab-documents"
+            >
+
+                <div class="lm-panel-icon gold">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+
+                <div>
+
+                    <span class="lm-panel-kicker">
+                        DOCUMENT INTELLIGENCE
+                    </span>
+
+                    <h3>
+                        Turn documents into usable case intelligence.
+                    </h3>
+
+                    <p>
+                        Uploaded legal documents can be parsed and
+                        analyzed to extract useful information,
+                        clauses and potential anomalies.
+                    </p>
+
+                    <div class="lm-panel-points">
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            PDF text extraction
+                        </span>
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            Clause analysis
+                        </span>
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            Risk highlighting
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Risk -->
+
+            <div
+                class="lm-workflow-panel"
+                id="tab-risk"
+            >
+
+                <div class="lm-panel-icon red">
+                    <i class="bi bi-shield-exclamation"></i>
+                </div>
+
+                <div>
+
+                    <span class="lm-panel-kicker">
+                        RISK & COMPLIANCE
+                    </span>
+
+                    <h3>
+                        Keep important legal tasks visible.
+                    </h3>
+
+                    <p>
+                        Track important deadlines and use case risk
+                        indicators to keep evidence quality,
+                        contradictions and pending tasks visible.
+                    </p>
+
+                    <div class="lm-panel-points">
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            Deadline awareness
+                        </span>
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            Compliance monitoring
+                        </span>
+
+                        <span>
+                            <i class="bi bi-check2"></i>
+                            Dynamic case risk signals
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     SECURITY
+========================================================= -->
+
+<section
+    class="lm-security-section"
+    id="security"
+>
+
+    <div class="lm-security-card">
+
+        <div class="lm-security-icon">
+            <i class="bi bi-shield-lock-fill"></i>
+        </div>
+
+        <div>
+
+            <div class="lm-section-kicker">
+                SECURE WORKSPACE
+            </div>
+
+            <h2>
+                Built with legal information
+                in mind.
+            </h2>
+
+            <p>
+                LegalMind AI's MVP architecture uses secure sessions,
+                password hashing and role-based access control alongside
+                a cloud database designed for case information and
+                workflow metadata.
+            </p>
+
+        </div>
+
+        <div class="lm-security-items">
+
+            <span>
+                <i class="bi bi-check-circle-fill"></i>
+                Secure sessions
+            </span>
+
+            <span>
+                <i class="bi bi-check-circle-fill"></i>
+                Password hashing
+            </span>
+
+            <span>
+                <i class="bi bi-check-circle-fill"></i>
+                Role-based access
+            </span>
+
+            <span>
+                <i class="bi bi-check-circle-fill"></i>
+                MongoDB Atlas
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     LOGIN
+========================================================= -->
+
+<section
+    class="lm-login-section"
+    id="login"
+>
+
+    <div class="lm-login-decoration left">
+        <i class="bi bi-scale"></i>
+    </div>
+
+    <div class="lm-login-decoration right">
+        <i class="bi bi-bank"></i>
+    </div>
+
+
+    <div class="lm-login-box">
+
+        <div class="lm-login-header">
+
+            <div class="lm-login-mini-logo">
+                <i class="bi bi-scale"></i>
+            </div>
+
+            <div class="lm-section-kicker">
+                ADVOCATE WORKSPACE
+            </div>
+
+            <h2>
+                Welcome back.
+            </h2>
+
+            <p>
+                Sign in to continue to your LegalMind workspace.
+            </p>
+
+        </div>
+
+
+        <!-- Flash messages -->
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div class="lm-login-alert lm-alert-{{ category }}">
+
+                        <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'error' %}x-circle{% else %}info-circle{% endif %}-fill"></i>
+
+                        <span>{{ message }}</span>
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <div class="lm-login-notice">
+
+            <i class="bi bi-info-circle-fill"></i>
+
+            <span>
+                Access is intended for verified legal professionals.
+            </span>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="{{ url_for('auth.login') }}"
+            novalidate
+        >
+
+            <!-- EMAIL -->
+
+            <div class="lm-login-field">
+
+                <label>
+                    Email address
+                    <span>*</span>
+                </label>
+
+                <div class="lm-login-input">
+
+                    <i class="bi bi-envelope"></i>
+
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="name@lawchambers.com"
+                        required
+                        autocomplete="email"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="lm-login-field">
+
+                <div class="lm-login-label-row">
+
+                    <label>
+                        Password
+                        <span>*</span>
+                    </label>
+
+                    <a href="#">
+                        Forgot password?
+                    </a>
+
+                </div>
+
+
+                <div class="lm-login-input">
+
+                    <i class="bi bi-lock"></i>
+
+                    <input
+                        type="password"
+                        name="password"
+                        id="loginPw"
+                        placeholder="Enter your password"
+                        required
+                        autocomplete="current-password"
+                    >
+
+                    <button
+                        type="button"
+                        class="lm-login-password-toggle"
+                        onclick="togglePw('loginPw', this)"
+                    >
+                        <i class="bi bi-eye"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="lm-login-submit"
+            >
+
+                <i class="bi bi-box-arrow-in-right"></i>
+
+                Sign in to LegalMind AI
+
+                <i class="bi bi-arrow-right lm-submit-arrow"></i>
+
+            </button>
+
+        </form>
+
+
+        <div class="lm-login-divider">
+            <span>New to LegalMind AI?</span>
+        </div>
+
+
+        <a
+            href="{{ url_for('auth.register') }}"
+            class="lm-login-register"
+        >
+
+            <i class="bi bi-person-plus"></i>
+
+            Create an advocate account
+
+            <i class="bi bi-arrow-up-right"></i>
+
+        </a>
+
+
+        <div class="lm-login-security">
+
+            <i class="bi bi-lock-fill"></i>
+
+            Your session is protected by secure authentication.
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="lm-login-footer">
+
+    <div class="lm-footer-brand">
+
+        <div class="lm-login-logo small">
+            <i class="bi bi-scale"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                LegalMind <span>AI</span>
+            </strong>
+
+            <small>
+                AI-powered legal workflow intelligence
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <div class="lm-footer-center">
+
+        <span>
+            © 2026 LegalMind AI. All rights reserved.
+        </span>
+
+        <span class="lm-footer-dot">•</span>
+
+        <span>
+            Built for Indian legal professionals
+        </span>
+
+    </div>
+
+
+    <div class="lm-footer-developer">
+
+        <span>
+            Designed & developed by
+        </span>
+
+        <strong>
+            Ajay Avale
+        </strong>
+
+    </div>
+
+</footer>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
 <script>
+
 function togglePw(id, btn) {
-  const inp  = document.getElementById(id);
-  const show = inp.type === "password";
-  inp.type   = show ? "text" : "password";
-  btn.innerHTML = show
-    ? '<i class="bi bi-eye-slash"></i>'
-    : '<i class="bi bi-eye"></i>';
+
+    const input = document.getElementById(id);
+
+    const isPassword = input.type === "password";
+
+    input.type = isPassword ? "text" : "password";
+
+    btn.innerHTML = isPassword
+        ? '<i class="bi bi-eye-slash"></i>'
+        : '<i class="bi bi-eye"></i>';
+
 }
+
+
+/* ---------------------------------------------------------
+   WORKFLOW TABS
+--------------------------------------------------------- */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const tabs = document.querySelectorAll(".lm-workflow-tab");
+
+    const panels = document.querySelectorAll(".lm-workflow-panel");
+
+
+    tabs.forEach(tab => {
+
+        tab.addEventListener("click", function () {
+
+            const target = this.dataset.tab;
+
+
+            tabs.forEach(item => {
+                item.classList.remove("active");
+            });
+
+
+            panels.forEach(panel => {
+                panel.classList.remove("active");
+            });
+
+
+            this.classList.add("active");
+
+
+            const targetPanel =
+                document.getElementById("tab-" + target);
+
+
+            if (targetPanel) {
+                targetPanel.classList.add("active");
+            }
+
+        });
+
+    });
+
+
+    /* -----------------------------------------------------
+       FEATURE CARD ACTIVE EFFECT
+    ----------------------------------------------------- */
+
+    const cards =
+        document.querySelectorAll(".lm-feature-card");
+
+
+    cards.forEach(card => {
+
+        card.addEventListener("mouseenter", function () {
+
+            cards.forEach(item => {
+                item.classList.remove("active");
+            });
+
+            this.classList.add("active");
+
+        });
+
+    });
+
+
+    /* -----------------------------------------------------
+       SCROLL REVEAL
+    ----------------------------------------------------- */
+
+    const revealItems = document.querySelectorAll(
+        ".lm-feature-card, .lm-security-card, .lm-login-box"
+    );
+
+
+    const observer = new IntersectionObserver(
+
+        entries => {
+
+            entries.forEach(entry => {
+
+                if (entry.isIntersecting) {
+
+                    entry.target.classList.add(
+                        "lm-reveal-visible"
+                    );
+
+                }
+
+            });
+
+        },
+
+        {
+            threshold: 0.12
+        }
+
+    );
+
+
+    revealItems.forEach(item => {
+        observer.observe(item);
+    });
+
+
+    /* -----------------------------------------------------
+       SMOOTH ANCHOR SCROLL
+    ----------------------------------------------------- */
+
+    document.querySelectorAll(
+        'a[href^="#"]'
+    ).forEach(link => {
+
+        link.addEventListener("click", function (event) {
+
+            const targetId =
+                this.getAttribute("href");
+
+            if (
+                targetId &&
+                targetId !== "#"
+            ) {
+
+                const target =
+                    document.querySelector(targetId);
+
+                if (target) {
+
+                    event.preventDefault();
+
+                    target.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                }
+
+            }
+
+        });
+
+    });
+
+});
+
 </script>
+
 </body>
 </html>

@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+{% block title %}Document Drafter — LegalMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- ── PAGE HEADER ──────────────────────────────────── -->
+  <div class="d-flex align-items-center gap-2 mb-1">
+    <div class="lm-section-bar"></div>
+    <h2 class="lm-section-title mb-0">Document Drafter</h2>
+  </div>
+  <p class="text-muted mb-4" style="font-size:13.5px;margin-left:14px">
+    Select a case and template — AI fills every field using
+    your case data and generates a ready-to-use legal document.
+  </p>
+
+  <div class="row g-4">
+
+    <!-- ── LEFT: CONTROLS ───────────────────────────── -->
+    <div class="col-12 col-lg-4">
+      <div class="lm-panel">
+
+        <div class="lm-panel-head">
+          <i class="bi bi-sliders text-primary"></i>
+          Document Settings
+        </div>
+
+        <!-- Select Case -->
+        <div class="lm-field">
+          <label class="lm-label">
+            Select Case <span class="text-danger">*</span>
+          </label>
+          <div class="lm-input-wrap">
+            <i class="bi bi-folder2-open lm-input-icon"></i>
+            <select id="caseSelect"
+                    class="lm-input lm-select"
+                    onchange="loadCaseInfo()">
+              <option value="">Choose a case</option>
+              {% for case in cases %}
+              <option value="{{ case._id }}"
+                      data-client="{{ case.client_name }}"
+                      data-type="{{ case.case_type }}"
+                      data-court="{{ case.court_name }}"
+                      data-desc="{{ case.description[:100] }}">
+                {{ case.title }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Case Info Preview -->
+        <div id="caseInfo"
+             class="lm-alert lm-alert-info mb-3"
+             style="display:none;flex-direction:column;gap:4px">
+          <div style="font-size:11px;font-weight:600;
+                      letter-spacing:0.06em;
+                      text-transform:uppercase;
+                      margin-bottom:4px">
+            Case Details
+          </div>
+          <div id="caseInfoClient"
+               style="font-size:12.5px"></div>
+          <div id="caseInfoType"
+               style="font-size:12px;
+                      color:var(--lm-text-3)"></div>
+        </div>
+
+        <!-- Select Template -->
+        <div class="lm-field">
+          <label class="lm-label">
+            Document Template <span class="text-danger">*</span>
+          </label>
+          <div class="d-flex flex-column gap-2">
+            {% for template in templates %}
+            <label class="lm-template-option">
+              <input type="radio"
+                     name="templateType"
+                     value="{{ template }}"
+                     onchange="selectTemplate('{{ template }}')">
+              <div class="lm-template-label">
+                <span class="lm-template-icon">
+                  {% if template == 'Legal Notice' %}
+                    <i class="bi bi-envelope-fill"></i>
+                  {% elif template == 'FIR Draft' %}
+                    <i class="bi bi-shield-fill"></i>
+                  {% elif template == 'Affidavit' %}
+                    <i class="bi bi-file-earmark-check-fill"></i>
+                  {% elif template == 'Bail Application' %}
+                    <i class="bi bi-unlock-fill"></i>
+                  {% elif template == 'Contract Agreement' %}
+                    <i class="bi bi-pen-fill"></i>
+                  {% endif %}
+                </span>
+                <span>{{ template }}</span>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button class="lm-btn-primary w-100 mt-2"
+                id="generateBtn"
+                onclick="generateDoc()">
+          <i class="bi bi-magic"></i>
+          Generate Document
+        </button>
+
+      </div>
+
+      <!-- Tips -->
+      <div class="lm-panel mt-3">
+        <div class="lm-panel-head">
+          <i class="bi bi-lightbulb-fill text-warning"></i>
+          Tips
+        </div>
+        <div class="d-flex flex-column gap-2"
+             style="font-size:12.5px;
+                    color:var(--lm-text-2)">
+          <div class="d-flex gap-2">
+            <i class="bi bi-check2 text-success mt-1"
+               style="flex-shrink:0"></i>
+            Add a detailed case description for better output
+          </div>
+          <div class="d-flex gap-2">
+            <i class="bi bi-check2 text-success mt-1"
+               style="flex-shrink:0"></i>
+            Review and edit the document before filing
+          </div>
+          <div class="d-flex gap-2">
+            <i class="bi bi-check2 text-success mt-1"
+               style="flex-shrink:0"></i>
+            Download as DOCX for further editing in Word
+          </div>
+          <div class="d-flex gap-2">
+            <i class="bi bi-check2 text-success mt-1"
+               style="flex-shrink:0"></i>
+            Generated documents are saved to your case
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT: OUTPUT ─────────────────────────────── -->
+    <div class="col-12 col-lg-8">
+
+      <!-- Empty State -->
+      <div class="lm-panel lm-empty-state py-5"
+           id="emptyState">
+        <i class="bi bi-file-earmark-text
+                   lm-empty-icon text-muted"></i>
+        <h5>Generated document will appear here</h5>
+        <p class="text-muted">
+          Select a case and template then click Generate
+        </p>
+      </div>
+
+      <!-- Loading -->
+      <div class="lm-panel text-center py-5"
+           id="loadingState" style="display:none">
+        <div class="lm-spinner-lg mx-auto mb-3"></div>
+        <h5>Generating document...</h5>
+        <p class="text-muted">
+          Gemini AI is drafting your
+          <span id="loadingTemplate"></span>
+          using case details
+        </p>
+      </div>
+
+      <!-- Result -->
+      <div id="resultPanel" style="display:none">
+
+        <!-- Toolbar -->
+        <div class="lm-panel mb-3">
+          <div class="d-flex align-items-center
+                      justify-content-between flex-wrap gap-2">
+            <div>
+              <div class="lm-panel-head mb-1">
+                <i class="bi bi-file-earmark-check
+                           text-success"></i>
+                <span id="docTitle">Document Generated</span>
+              </div>
+              <div style="font-size:12px;
+                          color:var(--lm-text-3)">
+                Review and edit before filing.
+                Download as DOCX when ready.
+              </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="lm-mini-btn"
+                      onclick="copyDoc()">
+                <i class="bi bi-clipboard"></i> Copy
+              </button>
+              <a id="downloadBtn"
+                 class="lm-btn-primary text-decoration-none"
+                 href="#" target="_blank">
+                <i class="bi bi-download"></i> Download DOCX
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Document Content -->
+        <div class="lm-panel">
+          <div class="lm-panel-head">
+            <i class="bi bi-file-text text-primary"></i>
+            Document Preview
+            <button class="lm-mini-btn ms-auto"
+                    onclick="toggleEdit()">
+              <i class="bi bi-pencil" id="editIcon"></i>
+              <span id="editBtnText">Edit</span>
+            </button>
+          </div>
+          <div id="docContent"
+               class="lm-doc-content"></div>
+          <textarea id="docEditor"
+                    class="lm-input lm-textarea"
+                    style="display:none;
+                           min-height:500px;
+                           font-size:13px;
+                           font-family:monospace"></textarea>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.lm-template-option {
+  display:    block;
+  cursor:     pointer;
+  margin:     0;
+}
+
+.lm-template-option input[type="radio"] {
+  display: none;
+}
+
+.lm-template-label {
+  display:       flex;
+  align-items:   center;
+  gap:           10px;
+  padding:       10px 14px;
+  border-radius: 8px;
+  border:        1px solid var(--lm-border);
+  background:    var(--lm-white);
+  font-size:     13.5px;
+  font-weight:   500;
+  color:         var(--lm-text-2);
+  transition:    all 0.13s;
+  cursor:        pointer;
+}
+
+.lm-template-label:hover {
+  border-color: var(--lm-indigo-100);
+  background:   var(--lm-indigo-50);
+  color:        var(--lm-indigo);
+}
+
+.lm-template-option input:checked + .lm-template-label {
+  border-color: var(--lm-indigo);
+  background:   var(--lm-indigo-50);
+  color:        var(--lm-indigo);
+  font-weight:  600;
+}
+
+.lm-template-icon {
+  width:           28px;
+  height:          28px;
+  background:      var(--lm-indigo-50);
+  border-radius:   6px;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  font-size:       13px;
+  color:           var(--lm-indigo);
+  flex-shrink:     0;
+}
+
+.lm-doc-content {
+  font-size:      13.5px;
+  line-height:    1.9;
+  color:          var(--lm-text);
+  white-space:    pre-wrap;
+  font-family:    'Times New Roman', serif;
+  max-height:     600px;
+  overflow-y:     auto;
+  padding:        8px 0;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentFilename = "";
+let isEditing       = false;
+
+// ── LOAD CASE INFO ────────────────────────────────────────
+function loadCaseInfo() {
+  const sel    = document.getElementById("caseSelect");
+  const option = sel.options[sel.selectedIndex];
+  const info   = document.getElementById("caseInfo");
+
+  if (!sel.value) {
+    info.style.display = "none";
+    return;
+  }
+
+  document.getElementById("caseInfoClient").textContent =
+    "Client: " + option.dataset.client;
+  document.getElementById("caseInfoType").textContent =
+    option.dataset.type +
+    (option.dataset.court ? " · " + option.dataset.court : "");
+
+  info.style.display = "flex";
+}
+
+// ── SELECT TEMPLATE ───────────────────────────────────────
+function selectTemplate(name) {
+  document.getElementById("loadingTemplate").textContent = name;
+}
+
+// ── GENERATE DOCUMENT ─────────────────────────────────────
+function generateDoc() {
+  const caseId   = document.getElementById("caseSelect").value;
+  const template = document.querySelector(
+    'input[name="templateType"]:checked'
+  )?.value;
+  const btn      = document.getElementById("generateBtn");
+
+  if (!caseId) {
+    alert("Please select a case."); return;
+  }
+  if (!template) {
+    alert("Please select a document template."); return;
+  }
+
+  // Show loading
+  document.getElementById("emptyState").style.display   = "none";
+  document.getElementById("resultPanel").style.display  = "none";
+  document.getElementById("loadingState").style.display = "block";
+  btn.disabled  = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...';
+
+  fetch("/ai/draft", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({
+      case_id:       caseId,
+      template_type: template
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById("loadingState").style.display = "none";
+    btn.disabled  = false;
+    btn.innerHTML = '<i class="bi bi-magic"></i> Generate Document';
+
+    if (data.success) {
+      renderDocument(data, template);
+    } else {
+      alert("Error: " + data.message);
+      document.getElementById("emptyState").style.display = "block";
+    }
+  })
+  .catch(() => {
+    document.getElementById("loadingState").style.display = "none";
+    document.getElementById("emptyState").style.display   = "block";
+    btn.disabled  = false;
+    btn.innerHTML = '<i class="bi bi-magic"></i> Generate Document';
+    alert("Server error. Please try again.");
+  });
+}
+
+// ── RENDER DOCUMENT ───────────────────────────────────────
+function renderDocument(data, template) {
+  document.getElementById("resultPanel").style.display = "block";
+  document.getElementById("docTitle").textContent      = template + " — Generated";
+
+  const content = data.content || "";
+  document.getElementById("docContent").textContent  = content;
+  document.getElementById("docEditor").value         = content;
+
+  currentFilename = data.filename || "";
+
+  // Set download link
+  const dlBtn = document.getElementById("downloadBtn");
+  if (currentFilename) {
+    dlBtn.href = "/documents/generated/" + currentFilename;
+  }
+}
+
+// ── TOGGLE EDIT ───────────────────────────────────────────
+function toggleEdit() {
+  const content  = document.getElementById("docContent");
+  const editor   = document.getElementById("docEditor");
+  const editIcon = document.getElementById("editIcon");
+  const editText = document.getElementById("editBtnText");
+  isEditing      = !isEditing;
+
+  if (isEditing) {
+    editor.value        = content.textContent;
+    content.style.display = "none";
+    editor.style.display  = "block";
+    editIcon.className    = "bi bi-eye";
+    editText.textContent  = "Preview";
+  } else {
+    content.textContent   = editor.value;
+    editor.style.display  = "none";
+    content.style.display = "block";
+    editIcon.className    = "bi bi-pencil";
+    editText.textContent  = "Edit";
+  }
+}
+
+// ── COPY DOCUMENT ─────────────────────────────────────────
+function copyDoc() {
+  const text = isEditing
+    ? document.getElementById("docEditor").value
+    : document.getElementById("docContent").textContent;
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Document copied to clipboard!");
+  });
+}
+</script>
+{% endblock %} 
