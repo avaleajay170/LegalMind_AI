@@ -16,7 +16,6 @@ bcrypt==4.0.1
 bidict==0.23.1
 blinker==1.8.2
 branca==0.8.2
-bson==0.5.10
 CacheControl==0.14.4
 cachetools==5.5.2
 certifi==2025.1.31
